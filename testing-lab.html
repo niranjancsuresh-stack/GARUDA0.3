@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CubeSat Testing Lab · G.A.R.U.D.A.</title>
+  <meta name="author" content="Niranjan CS">
+  <link rel="icon" href="assets/logo-dark.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/garuda.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="assets/garuda.js"></script>
+  <script>GARUDA.gate('lab');</script>
+  <style>
+    .hdr{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px}
+    .brand{display:flex;align-items:center;gap:12px}.brand img{height:76px;width:auto}
+    .nm{font-weight:800;font-size:19px;letter-spacing:.1em}.nm .pg{font-weight:600;letter-spacing:0;margin-left:10px;padding-left:10px;border-left:1px solid var(--line)}
+    .hr{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;background:var(--card)}
+    .dot{width:10px;height:10px;border-radius:50%;background:#9ca3af}.dot.on{background:#16a34a;box-shadow:0 0 8px #16a34a}
+    select.field{width:auto;padding:0 10px}
+    .info{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 16px;font-size:14px;margin-bottom:8px}
+    .info b{font-weight:700}
+    .tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;padding:8px 16px 12px}
+    .tab{font-size:14px;flex:none;white-space:nowrap}
+    .tab.on{background:var(--acc2);border-color:var(--acc2);color:#fff}:root[data-theme=dark] .tab.on{color:#04212b}
+    .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
+    h2{margin:0 0 6px;font-size:18px}
+    .crow{display:grid;grid-template-columns:78px 1fr;gap:4px 10px;padding:8px 0;border-top:1px solid var(--line);align-items:start}
+    .crow b{font-size:14px}.crow small{display:block;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;margin-top:2px;word-break:break-word}
+    .chip{display:inline-block;width:70px;text-align:center;padding:3px 0;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+    .chip.ok{background:#16a34a}.chip.warn{background:#d97706}.chip.bad{background:#dc2626}.chip.off{background:#6b7280}
+    .raw{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+    .raw div{background:var(--soft);border-radius:8px;padding:6px 8px}.raw small{color:var(--mut);font-size:12px}
+    .raw b{display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+    .lines{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--soft);border-radius:8px;padding:8px;min-height:60px;overflow-x:auto;white-space:pre}
+    .tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl th{text-align:left;color:var(--mut);font-weight:600}.tbl td,.tbl th{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+    .live{margin:8px 0 12px;padding:8px 12px;background:var(--soft);border-radius:8px;font-size:14px}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:90;max-width:90vw}
+    .toast[hidden]{display:none}
+    .wz{max-width:640px}
+    #wzPic svg{width:100%;max-width:380px;height:auto;display:block;margin:6px auto;background:var(--soft);border-radius:12px}
+    .bar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:var(--acc2);transition:width .2s}
+    .chk{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px;border:1px solid #d97706;border-radius:10px;font-size:14px}
+    .btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:14px}
+    #wzStatus{min-height:22px;font-size:14px;margin:8px 0 0}
+      .start{border-color:var(--acc2)}.start ol{margin:6px 0 0;padding-left:22px}.start li{margin:4px 0}
+    .next{margin:8px 0 4px;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+    .need{font-size:13px;color:var(--mut);margin:0 0 10px}
+    @media (max-width:700px){.brand img{height:56px}.nm{font-size:16px}.nm .pg{display:block;border:0;margin:0;padding:0;font-size:14px}.hr{width:100%}.hr .btn{flex:1 1 auto}.hdr .sm{display:none}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="hdr wrap">
+    <div class="brand">
+      <img class="logo-l" src="assets/logo-light.webp" alt="G.A.R.U.D.A. logo"><img class="logo-d" src="assets/logo-dark.webp" alt="G.A.R.U.D.A. logo">
+      <div><div class="nm">G.A.R.U.D.A.<span class="pg">CubeSat Testing Lab</span></div><div class="muted sm">Ground-link Automated Receiver &amp; Unified Data Analyzer</div></div>
+    </div>
+    <div class="hr">
+      <span class="pill"><i class="dot" id="dot"></i><span id="conTxt">Waiting for your CubeSat…</span></span>
+      <select class="field" id="baud" aria-label="Baud rate"><option>9600</option><option>57600</option><option selected>115200</option><option>230400</option></select>
+      <button class="btn primary" id="connect" type="button">Connect my CubeSat</button>
+      <a class="btn" href="index.html">← Welcome</a>
+      <button class="btn" id="theme" type="button">🌙 Night mode</button>
+    </div>
+  </header>
+  <div class="wrap"><div class="card info"><span id="infoTxt"></span><button class="btn" id="editInfo" type="button" style="min-height:34px;padding:4px 12px">✎ Edit details</button></div></div>
+  <nav class="tabs wrap" id="tabs" aria-label="Lab sections"></nav>
+  <main class="wrap" id="panels" style="flex:1;padding-bottom:20px"></main>
+  <footer>Created by Niranjan CS.</footer>
+
+  <!-- Edit the team details -->
+  <div class="ov" id="infoOv" hidden><div class="card pop"><h2>Your details</h2><p class="muted sm" style="margin:0">They appear on every download, with the date and time.</p><div id="infoFields"></div><div class="btns"><button class="btn" id="infoCancel" type="button">Cancel</button><button class="btn primary" id="infoSave" type="button">Save</button></div></div></div>
+
+  <!-- The guided step window: picture, instructions, OK -->
+  <div class="ov" id="wiz" hidden role="dialog" aria-modal="true" aria-labelledby="wzTitle">
+    <div class="card pop wz">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span class="muted sm" id="wzKicker"></span><button class="btn" id="wzStop" type="button">Stop</button></div>
+      <div class="bar"><i id="wzProg"></i></div>
+      <div id="wzPic"></div>
+      <h2 id="wzTitle" style="margin-top:6px"></h2>
+      <p id="wzText" style="margin:0"></p>
+      <div id="wzExtra"></div>
+      <div class="bar"><i id="wzBar"></i></div>
+      <p id="wzStatus" role="status"></p>
+      <div class="btns" id="wzBtns"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+// =============================================================================
+// G.A.R.U.D.A. CubeSat Testing Lab
+// Plug in your CubeSat, watch every sensor turn green, then walk through each
+// calibration step by step, a bit like calibrating a drone. Every step shows a
+// picture, tells you what to do, and waits for you to press OK.
+// =============================================================================
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const ICON = { pass: '✅', warn: '⚠️', fail: '❌', skipped: '⏭️' };
+  const fx = (v, d = 2) => (Number.isFinite(+v) && v !== undefined && v !== null ? (+v).toFixed(d) : '–');
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const mean = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- What we know about the CubeSat right now ----------
+  const S = { connected: false, port: null, reader: null, keep: false, cur: {}, seen: {}, times: [], lines: [], pending: {} };
+  const LAB = { results: [], cal: { spin: {}, acc: {} }, stop: false, sub: null, abort: null, askRes: null, wheelOn: false, busy: false, tab: 'check' };
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 4500);
+  }
+
+  // ---------- Reading the CubeSat: JSON or CSV lines over USB ----------
+  const ALIAS = { temp: ['temp', 'temperature'], humidity: ['hum', 'humidity'], ax: ['ax'], ay: ['ay'], az: ['az'], gx: ['gx'], gy: ['gy'], gz: ['gz'], mx: ['mx'], my: ['my'], mz: ['mz'], heading: ['hdg', 'heading'], altitude: ['alt', 'altitude'], lat: ['lat'], lon: ['lon'], rssi: ['rssi'], snr: ['snr'], wheel: ['wheel', 'wheel_strength'], gps_fix: ['gps_fix'] };
+  const CSV = ['temp', 'hum', 'ax', 'ay', 'az', 'gx', 'gy', 'gz', 'mx', 'my', 'mz', 'hdg', 'alt', 'lat', 'lon', 'batt', 'wheel'];
+
+  // Here's where the magic happens: every line from the USB port lands here.
+  function onLine(raw) {
+    const line = raw.trim();
+    if (!line) return;
+    S.lines.push(line); if (S.lines.length > 8) S.lines.shift();
+    if (line[0] === '#') return;                       // friendly notes from the CubeSat: shown in the lines box
+    let o;
+    if (line[0] === '{') {
+      try { o = JSON.parse(line); } catch (e) { return; }
+      if (o.ack) { const k = String(o.ack).toUpperCase(), f = S.pending[k]; if (f) { delete S.pending[k]; f(o); } return; }   // reply to one of our commands
+    } else {
+      const v = line.split(',').map(Number);
+      if (v.length < 15 || v.some(x => !Number.isFinite(x))) return;
+      o = {}; CSV.forEach((k, i) => { if (i < v.length) o[k] = v[i]; });
+    }
+    const now = Date.now(), p = {};
+    for (const k in ALIAS) { const a = ALIAS[k].find(n => o[n] !== undefined); if (a !== undefined) { p[k] = +o[a]; S.seen[k] = now; } }
+    // Battery: 5 or less means volts (like 3.96), anything bigger is a percentage.
+    const b = o.battery ?? o.batt ?? o.battery_v;
+    if (typeof b === 'number') { if (b > 0 && b <= 5) { p.battery_v = b; p.battery = Math.max(0, Math.min(100, Math.round((b - 3.3) / 0.9 * 100))); } else p.battery = b; S.seen.battery = now; }
+    const dt = S.times.length ? Math.min((now - S.times[S.times.length - 1]) / 1000, 3) : 0;
+    S.times.push(now); if (S.times.length > 10) S.times.shift();
+    S.cur = { ...S.cur, ...p };
+    if (LAB.sub) LAB.sub(S.cur, dt);                   // a running test gets every new packet
+  }
+
+  async function connect() {
+    if (S.connected) return disconnect();
+    if (!('serial' in navigator)) { toast('Hey there! To connect to the hardware you\u2019ll need a browser with Web Serial, like Chrome or Edge on a computer.'); return; }
+    try {
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: +$('baud').value || 115200 });
+      S.port = port; S.connected = true; S.keep = true; paintStatus(); readLoop();
+    } catch (e) { toast('Hmm, couldn\u2019t open the port (' + (e.message || 'check the USB cable') + '). No harm done, try again!'); }
+  }
+  async function readLoop() {
+    const dec = new TextDecoderStream();
+    S.port.readable.pipeTo(dec.writable).catch(() => {});
+    const rd = S.reader = dec.readable.getReader();
+    let buf = '';
+    try {
+      while (S.keep) {
+        const { value, done } = await rd.read();
+        if (done) break;
+        buf += value; let i;
+        while ((i = buf.indexOf('\n')) >= 0) { onLine(buf.slice(0, i)); buf = buf.slice(i + 1); }
+      }
+    } catch (e) { toast('The stream paused. Reconnect when you\u2019re ready.'); } finally { try { rd.releaseLock(); } catch (e) { /* done */ } }
+  }
+  async function disconnect() {
+    S.keep = false;
+    try { await S.reader?.cancel(); } catch (e) { /* ignore */ }
+    try { await S.port?.close(); } catch (e) { /* ignore */ }
+    S.port = null; S.connected = false; paintStatus();
+  }
+  // Sends one line such as "CMD WHEEL_START 30" and waits for {"ack":"WHEEL_START","ok":true}.
+  async function cmd(name, arg, ms = 4000) {
+    if (!(S.connected && S.port?.writable)) return null;
+    const k = name.toUpperCase();
+    const reply = new Promise(res => { S.pending[k] = res; setTimeout(() => { if (S.pending[k] === res) { delete S.pending[k]; res(null); } }, ms); });
+    try {
+      const w = S.port.writable.getWriter();
+      try { await w.write(new TextEncoder().encode('CMD ' + k + (arg !== undefined ? ' ' + arg : '') + '\n')); } finally { w.releaseLock(); }
+    } catch (e) { return null; }
+    return reply;
+  }
+  async function stopWheel() { if (LAB.wheelOn) { LAB.wheelOn = false; await cmd('WHEEL_STOP'); } }
+
+  function paintStatus() {
+    $('dot').className = 'dot' + (S.connected ? ' on' : '');
+    $('conTxt').textContent = S.connected ? (S.times.length ? 'Live from your CubeSat' : 'Connected, waiting for the first packet…') : 'Waiting for your CubeSat… plug it in!';
+    $('connect').textContent = S.connected ? 'Unplug my CubeSat' : 'Connect my CubeSat';
+  }
+
+  // ---------- Listening helpers for the calibration steps ----------
+  function collect(ms) {          // listen for a while and keep every packet
+    return new Promise(res => {
+      const a = [], t0 = Date.now();
+      const iv = setInterval(() => bar((Date.now() - t0) / ms * 100), 120);
+      const end = () => { clearTimeout(t); clearInterval(iv); LAB.sub = null; LAB.abort = null; res(a); };
+      const t = setTimeout(end, ms); LAB.abort = end; LAB.sub = p => a.push(p);
+    });
+  }
+  function until(fn, ms) {        // watch every packet until fn says "done", or time runs out
+    return new Promise(res => {
+      const end = ok => { clearTimeout(t); LAB.sub = null; LAB.abort = null; res(ok); };
+      const t = setTimeout(() => end(false), ms); LAB.abort = () => end(false);
+      LAB.sub = (p, dt) => { if (fn(p, dt)) end(true); };
+    });
+  }
+  async function still(sec) {     // hold still: average everything we hear
+    const w = await collect(sec * 1000);
+    if (LAB.stop || w.length < 2) return null;
+    const m = k => mean(w.map(p => p[k]));
+    const alt = m('altitude');
+    return { n: w.length, ax: m('ax'), ay: m('ay'), az: m('az'), gx: m('gx'), gy: m('gy'), gz: m('gz'), alt, altSd: Math.sqrt(mean(w.map(p => (p.altitude - alt) ** 2))), gm: Math.hypot(m('gx'), m('gy'), m('gz')) };
+  }
+  const pass = d => ({ status: 'pass', detail: d }), warn = d => ({ status: 'warn', detail: d }), fail = d => ({ status: 'fail', detail: d });
+  const noData = () => fail('No packets arrived while I was listening. Check the link and try again.');
+
+  // ---------- Pictures: a little 3D CubeSat, turned the way you should hold it ----------
+  // The cyan face is the TOP, the red face is the NOSE. We rotate a cube with simple maths and draw what the camera sees.
+  function pic(o) {
+    const P = o.pose || [0, 0, 0], rad = d => d * Math.PI / 180;
+    const rot = (a, b, c) => { const [cx, sx, cy, sy, cz, sz] = [a, b, c].flatMap(d => [Math.cos(rad(d)), Math.sin(rad(d))]); return ([x, y, z]) => { const y1 = y * cx - z * sx, z1 = y * sx + z * cx, x2 = x * cy + z1 * sy, z2 = -x * sy + z1 * cy; return [x2 * cz - y1 * sz, x2 * sz + y1 * cz, z2]; }; };
+    const R = rot(...P), V = rot(0, 0, -35), e = rad(28), K = 52;
+    const pr = p => { const q = V(p); return [q[0] * K, -(q[1] * Math.sin(e) + q[2] * Math.cos(e)) * K]; };
+    const faces = [['TOP', [0, 0, 1], '#22d3ee', '#06222b'], ['BOTTOM', [0, 0, -1], '#0e7490', '#fff'], ['NOSE', [1, 0, 0], '#f43f5e', '#fff'], ['BACK', [-1, 0, 0], '#9f1239', '#fff'], ['LEFT', [0, 1, 0], '#cbd5e1', '#0f172a'], ['RIGHT', [0, -1, 0], '#64748b', '#fff']];
+    const corners = n => { const i = n.findIndex(v => v), [j, k] = [0, 1, 2].filter(t => t !== i); return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => { const p = [0, 0, 0]; p[i] = n[i]; p[j] = u; p[k] = v; return p; }); };
+    const pts = a => a.map(p => pr(p).map(v => v.toFixed(1)).join(',')).join(' ');
+    let s = `<polygon points="${pts([[-2.6, -2.6, -1], [2.6, -2.6, -1], [2.6, 2.6, -1], [-2.6, 2.6, -1]])}" fill="#94a3b8" fill-opacity=".3" stroke="#94a3b8" stroke-opacity=".6"/>`;
+    faces.forEach(([name, n, col, txt]) => {
+      const nn = V(R(n));
+      if (nn[1] * Math.cos(e) - nn[2] * Math.sin(e) >= 0) return;            // facing away from the camera
+      const c = pr(R(n));
+      s += `<polygon points="${pts(corners(n).map(R))}" fill="${col}" stroke="#0f172a" stroke-width="1.5"/><text x="${c[0].toFixed(1)}" y="${(c[1] + 4).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${txt}">${name}</text>`;
+    });
+    const arrow = (a, col = '#f59e0b') => {
+      const q = a.map(pr), [p0, p1] = [q[q.length - 2], q[q.length - 1]], t = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), h = 10;
+      const hd = [[0, 0], [-h, -h / 2], [-h, h / 2]].map(([x, y]) => (p1[0] + x * Math.cos(t) - y * Math.sin(t)).toFixed(1) + ',' + (p1[1] + x * Math.sin(t) + y * Math.cos(t)).toFixed(1)).join(' ');
+      return `<polyline points="${q.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round"/><polygon points="${hd}" fill="${col}"/>`;
+    };
+    const a = o.arrow;
+    if (a === 'updown') s += arrow([[2.4, 0, -.4], [2.4, 0, 1.7]]) + arrow([[3.1, 0, 1.7], [3.1, 0, -.4]]);
+    else if (a === 'slide') s += [[[1.5, 0, -1], [2.9, 0, -1]], [[-1.5, 0, -1], [-2.9, 0, -1]], [[0, 1.5, -1], [0, 2.9, -1]], [[0, -1.5, -1], [0, -2.9, -1]]].map(p => arrow(p)).join('');
+    else if (a && a.spin) {
+      const L = [];
+      for (let i = 0; i <= 14; i++) { const t = a.dir * rad(i * 22), c = 2.3 * Math.cos(t), sn = 2.3 * Math.sin(t); L.push(a.spin === 'z' ? [c, sn, 0] : a.spin === 'x' ? [0, c, sn] : [sn, 0, c]); }
+      s += arrow(L);
+    }
+    if (o.note) s += `<text x="125" y="-75" font-size="34">${o.note}</text>`;
+    s += `<text x="-160" y="-100" font-size="11" fill="currentColor" opacity=".7">⬇ gravity</text>`;
+    return `<svg viewBox="-170 -120 340 240" role="img" aria-label="Picture of how to hold the CubeSat">${s}</svg>`;
+  }
+
+  // ---------- The guided steps ----------
+  // Like calibrating a drone: six faces, then still, then moving and spinning.
+  const POS = [
+    { n: 'Face up', pose: [0, 0, 0], ax: 'az', sg: 1, x: 'Put the CubeSat flat on the table with its TOP face (cyan) pointing up.' },
+    { n: 'Upside down', pose: [180, 0, 0], ax: 'az', sg: -1, x: 'Flip it upside down, so the TOP face (cyan) rests on the table.' },
+    { n: 'Left side down', pose: [-90, 0, 0], ax: 'ay', sg: -1, x: 'Stand it on its LEFT side, so the LEFT face rests on the table.' },
+    { n: 'Right side down', pose: [90, 0, 0], ax: 'ay', sg: 1, x: 'Now stand it on its RIGHT side.' },
+    { n: 'Nose up', pose: [0, -90, 0], ax: 'ax', sg: 1, x: 'Stand it on its tail, with the NOSE (red face) pointing at the ceiling.' },
+    { n: 'Nose down', pose: [0, 90, 0], ax: 'ax', sg: -1, x: 'Flip it over, so the NOSE (red face) rests on the table.' }
+  ];
+  const posStep = (p, i) => ({
+    g: 'Accelerometer', n: p.n, pic: { pose: p.pose }, t: `Position ${i + 1} of 6: ${p.n}`,
+    x: p.x + ' Keep it perfectly still, then press OK.',
+    run: async () => {
+      const w = await still(3); if (!w) return noData();
+      const a = { ax: w.ax, ay: w.ay, az: w.az }, main = a[p.ax], others = ['ax', 'ay', 'az'].filter(k => k !== p.ax).map(k => Math.abs(a[k]));
+      LAB.cal.acc[p.n] = a;
+      if (Math.abs(main) < 0.8 || Math.abs(main) > 1.25 || Math.max(...others) > 0.35) return fail(`I expected about 1 g on ${p.ax.toUpperCase()}, but I see X ${fx(a.ax)}, Y ${fx(a.ay)}, Z ${fx(a.az)} g. Is it resting on that face?`);
+      if (w.gm > 8) return warn(`${p.ax.toUpperCase()} reads ${fx(main)} g, but it was still moving a little (${fx(w.gm, 1)} °/s).`);
+      return pass(`${p.ax.toUpperCase()} reads ${fx(main)} g, just right.` + (Math.sign(main) !== p.sg ? ' (Your sensor counts in the opposite direction, which is fine.)' : ''));
+    }
+  });
+  const accSummary = {
+    g: 'Accelerometer', n: 'Axes summary', auto: true, pic: { pose: [0, 0, 0] }, t: 'Working out your offsets…', x: 'Comparing opposite faces to see how far each axis is from perfect.',
+    run: async () => {
+      const A = LAB.cal.acc, pairs = [['Face up', 'Upside down', 'az'], ['Left side down', 'Right side down', 'ay'], ['Nose up', 'Nose down', 'ax']], off = {}, scale = {};
+      let ok = 0, flip = 0;
+      pairs.forEach(([p, q, k]) => { if (A[p] && A[q]) { ok++; const v1 = A[p][k], v2 = A[q][k]; if (v1 * v2 > 0) flip++; off[k] = +((v1 + v2) / 2).toFixed(3); scale[k] = +(2 / Math.abs(v1 - v2)).toFixed(3); } });
+      LAB.cal.accOffset = off; LAB.cal.accScale = scale;
+      if (ok < 3) return { status: 'skipped', detail: `Only ${ok} of 3 axis pairs were measured. Run all six positions to get offsets.` };
+      if (flip) return warn('Some opposite faces read the same direction. Check the positions and try again.');
+      return pass(`Offsets (g): X ${off.ax}, Y ${off.ay}, Z ${off.az}. Scale: X ${scale.ax}, Y ${scale.ay}, Z ${scale.az}.`);
+    }
+  };
+  const gyroStill = {
+    g: 'Gyroscope', n: 'Resting drift', pic: { pose: [0, 0, 0] }, t: 'Keep it perfectly still', x: 'Lay it flat and don\u2019t touch it for 5 seconds. I\u2019ll measure how much the gyroscope drifts when nothing moves. Press OK to start.',
+    run: async () => {
+      const w = await still(5); if (!w) return noData();
+      LAB.cal.gyroBias = [w.gx, w.gy, w.gz].map(v => +v.toFixed(3));
+      return w.gm > 5 ? warn(`Drift is ${fx(w.gm, 1)} °/s. Was it moving? I saved it anyway.`) : pass(`Resting drift saved: ${LAB.cal.gyroBias.join(', ')} °/s.`);
+    }
+  };
+  const upDown = {
+    g: 'Motion', n: 'Up and down', pic: { pose: [0, 0, 0], arrow: 'updown' }, t: 'Move it up and down', x: 'Hold the CubeSat in your hand and lift it straight up and down a few times, about 30 cm. Smooth and steady. Press OK, then start moving.',
+    run: async c => {
+      let lo = 9, hi = 0;
+      const ok = await until(p => { const m = Math.hypot(p.ax, p.ay, p.az); lo = Math.min(lo, m); hi = Math.max(hi, m); bar((hi - lo) / 0.25 * 100, `Acceleration swing: ${fx(hi - lo)} g`); return hi - lo >= 0.25; }, 30000);
+      return ok ? pass(`Felt the up and down: acceleration swung by ${fx(hi - lo)} g.`) : fail(`I only felt a swing of ${fx(hi - lo)} g. Try a bigger, smoother lift.`);
+    }
+  };
+  const slide = {
+    g: 'Motion', n: 'X-Y plane', pic: { pose: [0, 0, 0], arrow: 'slide' }, t: 'Slide it around the X-Y plane', x: 'Slide the CubeSat across the table: forward and back, then left and right. Press OK, then start sliding.',
+    run: async () => {
+      const r = { ax: [9, -9], ay: [9, -9] };
+      const ok = await until(p => { ['ax', 'ay'].forEach(k => { r[k][0] = Math.min(r[k][0], p[k]); r[k][1] = Math.max(r[k][1], p[k]); }); const m = Math.max(r.ax[1] - r.ax[0], r.ay[1] - r.ay[0]); bar(m / 0.15 * 100, `Sideways push: ${fx(m)} g`); return m >= 0.15; }, 30000);
+      return ok ? pass('Felt the sideways movement on the X and Y axes.') : fail('I didn\u2019t feel enough sideways movement. Try a firmer slide.');
+    }
+  };
+  const SP = { z: ['flat, like a spinning top', 'as seen from above'], x: ['around its nose (roll)', 'as seen from the nose end (the red face)'], y: ['around its side axis (pitch)', 'as seen from the left side'] };
+  const spinStep = (axis, cw) => ({
+    g: 'Motion', n: `Spin ${axis.toUpperCase()} ${cw ? 'clockwise' : 'counter-clockwise'}`, pic: { pose: [0, 0, 0], arrow: { spin: axis, dir: cw ? -1 : 1 } },
+    t: `Rotate ${cw ? 'clockwise' : 'counter-clockwise'}: ${SP[axis][0]}`,
+    x: `Slowly turn it ${cw ? 'clockwise' : 'counter-clockwise'} ${SP[axis][1]}, one full turn, like the arrow shows. Press OK, then start turning.`,
+    run: async () => {
+      let ang = 0;
+      const ok = await until((p, dt) => { ang += p['g' + axis] * dt; bar(Math.abs(ang) / 300 * 100, `Turned about ${Math.round(Math.abs(ang))}° of 300°`); return Math.abs(ang) >= 300; }, 40000);
+      if (!ok) return fail(`Only turned about ${Math.round(Math.abs(ang))}° of 300°. Try a smoother, fuller turn.`);
+      const sg = Math.sign(ang), key = axis + (cw ? 'cw' : 'ccw'), other = LAB.cal.spin[axis + (cw ? 'ccw' : 'cw')];
+      LAB.cal.spin[key] = sg;
+      if (other && other === sg) return warn(`Turned ${Math.round(Math.abs(ang))}°, but in the same direction as the other way round. Check the direction.`);
+      return pass(`Turned about ${Math.round(Math.abs(ang))}° ${sg > 0 ? '(positive' : '(negative'} direction).`);
+    }
+  });
+  const magSweep = {
+    g: 'Magnetometer', n: 'Figure-8 sweep', pic: { pose: [0, 0, 0], arrow: { spin: 'z', dir: -1 } }, t: 'Wave it around in every direction',
+    x: 'Hold the CubeSat and slowly rotate it through every direction, like drawing a figure 8 in the air. Tilt it up, down and all around for about 20 seconds. Press OK, then start.',
+    run: async () => {
+      const mn = [9e9, 9e9, 9e9], mx = [-9e9, -9e9, -9e9];
+      const rng = () => mx.map((v, i) => v - mn[i]);
+      const ok = await until(p => { [p.mx, p.my, p.mz].forEach((v, i) => { mn[i] = Math.min(mn[i], v); mx[i] = Math.max(mx[i], v); }); bar(Math.min(...rng()) / 30 * 100, `Covered X ${fx(rng()[0], 0)} · Y ${fx(rng()[1], 0)} · Z ${fx(rng()[2], 0)} µT`); return Math.min(...rng()) >= 30; }, 30000);
+      LAB.cal.magOffset = mx.map((v, i) => +((v + mn[i]) / 2).toFixed(2));
+      const r = rng();
+      if (ok) return pass(`Great coverage. Magnetometer offsets (µT): ${LAB.cal.magOffset.join(', ')}.`);
+      return Math.min(...r) >= 15 ? warn('Decent sweep, but not every direction was covered. Try tilting it more.') : fail('I didn\u2019t see enough change. Rotate it through more directions.');
+    }
+  };
+  const IMU = [...POS.map(posStep), accSummary, gyroStill, upDown, slide, spinStep('z', true), spinStep('z', false), spinStep('x', true), spinStep('x', false), spinStep('y', true), spinStep('y', false), magSweep];
+
+  const ALT = [
+    {
+      g: 'Altimeter', n: 'Ground level', pic: { pose: [0, 0, 0] }, t: 'Set the ground level', x: 'Put the CubeSat on a flat, steady surface like the table and don\u2019t touch it for 5 seconds. This becomes zero metres. Press OK to start.',
+      run: async () => {
+        const w = await still(5); if (!w || !Number.isFinite(w.alt)) return noData();
+        LAB.cal.altRef = +w.alt.toFixed(2);
+        return w.altSd > 0.6 ? warn(`Ground level saved at ${fx(w.alt)} m, but it wobbles by ±${fx(w.altSd)} m. The sensor is noisy, or the board moved.`) : pass(`Ground level set at ${fx(w.alt)} m (wobble ±${fx(w.altSd)} m).`);
+      }
+    },
+    {
+      g: 'Altimeter', n: 'Lift up', pic: { pose: [0, 0, 0], arrow: 'updown' }, t: 'Lift it straight up', x: 'Choose how high you will lift it (1 m is a good start). Hold the CubeSat steady at that height, then press OK.', input: ['Lift height (metres)', 1],
+      run: async c => {
+        if (LAB.cal.altRef === undefined) return fail('Set the ground level first, then try the lift again.');
+        const h = Math.min(5, Math.max(0.2, c.val || 1)), w = await still(4); if (!w) return noData();
+        const d = w.alt - LAB.cal.altRef; LAB.cal.altLift = { target: h, measured: +d.toFixed(2) };
+        return Math.abs(d - h) <= Math.max(0.3, 0.3 * h) ? pass(`Measured ${fx(d)} m of lift for a ${h} m lift. Spot on!`) : fail(`Measured ${fx(d)} m, but you lifted about ${h} m (off by ${fx(d - h)} m).`);
+      }
+    },
+    {
+      g: 'Altimeter', n: 'Back down', pic: { pose: [0, 0, 0], arrow: 'updown' }, t: 'Bring it back down', x: 'Lower the CubeSat back onto the table and keep it still, then press OK.',
+      run: async () => {
+        if (LAB.cal.altRef === undefined) return fail('Set the ground level first.');
+        const w = await still(4); if (!w) return noData();
+        const d = w.alt - LAB.cal.altRef;
+        return Math.abs(d) <= 0.35 ? pass(`Back to ${fx(d)} m from ground level. The altimeter follows you down.`) : fail(`Still ${fx(d)} m away from ground level. Is it back on the table?`);
+      }
+    }
+  ];
+
+  const YN = [{ id: 'yes', label: 'Yes', primary: true }, { id: 'no', label: 'No' }];
+  const SNDLED = [
+    {
+      g: 'Sound', n: 'Buzzer', pic: { pose: [0, 0, 0], note: '🔊' }, t: 'Listen for the beep', x: 'I\u2019ll make the CubeSat beep for a moment. Hold it near your ear and press OK.',
+      run: async c => {
+        const a = await cmd('BUZZER_ON', undefined, 1200); await sleep(1500); await cmd('BUZZER_OFF', undefined, 1200);
+        say('Did you hear the beep?'); const r = await ask(YN); if (r === 'stop') return null;
+        return r === 'yes' ? pass('You heard the buzzer' + (a ? '.' : ' (the CubeSat sent no reply, but the sound worked).')) : fail(a ? 'The CubeSat said it started the buzzer, but you heard nothing. Check the buzzer wiring.' : 'No reply and no sound. The firmware may not have the BUZZER_ON command yet.');
+      }
+    },
+    {
+      g: 'LED', n: 'Status LED', pic: { pose: [0, 0, 0], note: '💡' }, t: 'Watch the LED', x: 'I\u2019ll switch the CubeSat\u2019s LED on. Look at the board and press OK.',
+      run: async () => {
+        const a = await cmd('LED_ON', undefined, 1200);
+        say('Is the LED lit?'); const r = await ask(YN); await cmd('LED_OFF', undefined, 1200); if (r === 'stop') return null;
+        return r === 'yes' ? pass('You saw the LED light up' + (a ? '.' : ' (the CubeSat sent no reply, but the LED worked).')) : fail(a ? 'The CubeSat said it switched the LED on, but you saw nothing. Check the LED and its resistor.' : 'No reply and no light. The firmware may not have the LED_ON command yet.');
+      }
+    }
+  ];
+
+  const WHEEL = [{
+    g: 'Reaction wheel', n: 'Spin up and stop', pic: { pose: [0, 0, 0], arrow: { spin: 'z', dir: -1 } }, t: 'Safety first, then the wheel spins',
+    x: 'Remove anything attached to the CubeSat or touching the wheel. Keep fingers, hair, cables and loose items well away. Rest the CubeSat on a flat table and be ready to press Stop. The wheel only spins gently for a few seconds.',
+    safety: 'I understand. Nothing is attached to the wheel, my hands are clear, and the CubeSat is resting on a flat table.',
+    run: async () => {
+      const w0 = await collect(2500); if (w0.length < 2) return noData();
+      const base = mean(w0.map(p => p.wheel));
+      bar(30, 'Spinning up gently…');
+      const a = await cmd('WHEEL_START', 30);
+      if (!a) return { status: 'skipped', detail: 'The CubeSat didn\u2019t answer WHEEL_START. Its firmware may not have the wheel command yet.' };
+      if (a.ok === false) return fail('The CubeSat refused to start the wheel' + (a.reason ? ' (' + a.reason + ')' : '') + '.');
+      LAB.wheelOn = true;
+      const up = await until(p => p.wheel >= base + 8, 7000);
+      const peak = S.cur.wheel;
+      if (!LAB.stop) { bar(60, 'Holding the spin for 3 seconds…'); await collect(3000); }
+      const stopped = await cmd('WHEEL_STOP'); LAB.wheelOn = false;
+      bar(85, 'Stopping the wheel…');
+      const down = await until(p => p.wheel <= base + 3, 8000);
+      const parts = [up ? `speeds up (${fx(base, 1)}% to ${fx(peak, 1)}%)` : 'did NOT speed up by 8%', down ? 'slows back to rest' : 'did NOT slow back down in time', stopped ? 'stop command answered' : 'NO reply to WHEEL_STOP, so cut its power if it keeps spinning'];
+      return up && down && stopped ? pass('It ' + parts.join(', ') + '.') : fail('It ' + parts.join(', ') + '.');
+    }
+  }];
+
+  // ---------- The guided step window ----------
+  function bar(p, t) { const el = $('wzBar'); el.style.transition = p === 0 ? 'none' : ''; el.style.width = Math.max(0, Math.min(100, p)) + '%'; if (t !== undefined) $('wzStatus').textContent = t; }
+  function say(t) { $('wzText').textContent = t; }
+  function ask(btns) {
+    return new Promise(res => {
+      const box = $('wzBtns'); box.innerHTML = '';
+      btns.forEach(b => { const e = document.createElement('button'); e.type = 'button'; e.className = 'btn' + (b.primary ? ' primary' : ''); e.textContent = b.label; if (b.needs) { e.dataset.needs = '1'; e.disabled = true; } e.onclick = () => res(b.id); box.appendChild(e); });
+      LAB.askRes = res;
+    });
+  }
+  function rec(g, n, status, detail) {
+    LAB.results = LAB.results.filter(r => !(r.g === g && r.n === n));
+    LAB.results.push({ g, n, status, detail, time: new Date().toISOString() });
+    renderRes();
+  }
+  async function runWizard(steps, title) {
+    if (LAB.busy) return;
+    if (!S.connected) { toast('Connect your CubeSat first. These steps need live packets from it.'); return; }
+    LAB.busy = true; LAB.stop = false; $('wiz').hidden = false;
+    try {
+      for (let i = 0; i < steps.length && !LAB.stop; i++) {
+        const s = steps[i];
+        for (;;) {
+          $('wzKicker').textContent = `${title} · step ${i + 1} of ${steps.length}`; $('wzProg').style.width = (i / steps.length * 100) + '%';
+          $('wzPic').innerHTML = pic(s.pic || {}); $('wzTitle').textContent = s.t; say(s.x); bar(0, '');
+          $('wzExtra').innerHTML = s.input ? `<label class="lbl">${s.input[0]}<input id="wzIn" class="field" type="number" step="any" value="${s.input[1]}"></label>` : s.safety ? `<label class="chk"><input type="checkbox" id="wzChk"><span>${esc(s.safety)}</span></label>` : '';
+          let a = 'ok';
+          if (!s.auto) {
+            const pending = ask([{ id: 'ok', label: 'OK', primary: true, needs: !!s.safety }, { id: 'skip', label: 'Skip this step' }]);
+            if (s.safety) $('wzChk').onchange = e => $('wzBtns').querySelectorAll('[data-needs]').forEach(b => { b.disabled = !e.target.checked; });
+            a = await pending;
+          } else { $('wzBtns').innerHTML = ''; }
+          if (a === 'stop' || LAB.stop) break;
+          if (a === 'skip') { rec(s.g, s.n, 'skipped', 'You skipped this step.'); break; }
+          const val = $('wzIn') ? +$('wzIn').value : undefined;
+          $('wzBtns').innerHTML = '';
+          let r; try { r = await s.run({ val }); } catch (e) { r = fail('Something went wrong: ' + e.message); }
+          if (LAB.stop || !r) break;
+          bar(100, ICON[r.status] + ' ' + r.detail);
+          if (r.status === 'pass') { rec(s.g, s.n, 'pass', r.detail); await sleep(900); break; }
+          if (r.status === 'skipped') { rec(s.g, s.n, 'skipped', r.detail); await sleep(1500); break; }
+          const c = await ask([{ id: 'retry', label: 'Try again', primary: true }, { id: 'next', label: 'Continue' }]);
+          if (c === 'stop') break;
+          if (c === 'retry') continue;
+          rec(s.g, s.n, r.status, r.detail); break;
+        }
+      }
+    } finally {
+      await stopWheel(); $('wiz').hidden = true; LAB.busy = false; LAB.stop = false;
+      const c = k => LAB.results.filter(r => r.status === k).length;
+      toast(`Done! ✅ ${c('pass')} passed · ⚠️ ${c('warn')} to double-check · ❌ ${c('fail')} failed · ⏭️ ${c('skipped')} skipped`);
+      renderAll();
+    }
+  }
+  $('wzStop').onclick = () => { LAB.stop = true; if (LAB.abort) LAB.abort(); if (LAB.askRes) LAB.askRes('stop'); };
+
+  // ---------- The sensor checklist ----------
+  const fresh = (...k) => k.every(x => S.seen[x] && Date.now() - S.seen[x] < 6000);
+  const row = (keys, fn) => () => { if (!S.connected) return ['off', 'Not connected yet']; if (!fresh(...keys)) return ['bad', 'No data coming in from this sensor']; return fn(S.cur); };
+  const CHK = [
+    ['Link', () => { if (!S.connected) return ['off', 'Not connected yet']; const t = S.times, age = t.length ? (Date.now() - t[t.length - 1]) / 1000 : 1e9, rate = t.length > 1 ? (t.length - 1) / ((t[t.length - 1] - t[0]) / 1000) : 0; return [age < 4 ? 'ok' : age < 12 ? 'warn' : 'bad', t.length ? `${fx(rate, 1)} packets/s · last one ${fx(age, 1)} s ago` : 'Connected, but no packets yet']; }],
+    ['Battery', row(['battery'], C => { const v = C.battery_v, p = C.battery, s = v !== undefined ? (v >= 3.7 ? 'ok' : v >= 3.4 ? 'warn' : 'bad') : (p >= 50 ? 'ok' : p >= 20 ? 'warn' : 'bad'); return [s, `${v !== undefined ? fx(v) + ' V · ' : ''}${fx(p, 0)} % charge`]; })],
+    ['Signal', row(['rssi'], C => [C.rssi >= -100 ? 'ok' : C.rssi >= -115 ? 'warn' : 'bad', `RSSI ${fx(C.rssi, 0)} dBm` + (C.snr !== undefined ? ` · SNR ${fx(C.snr, 1)} dB` : '')])],
+    ['Temperature', row(['temp'], C => [C.temp > -20 && C.temp < 60 ? 'ok' : 'warn', `${fx(C.temp, 1)} °C`])],
+    ['Humidity', row(['humidity'], C => [C.humidity >= 0 && C.humidity <= 100 ? 'ok' : 'warn', `${fx(C.humidity, 1)} %`])],
+    ['Accelerometer', row(['ax', 'ay', 'az'], C => { const m = Math.hypot(C.ax, C.ay, C.az); return [m > 0.5 && m < 1.6 ? 'ok' : 'warn', `X ${fx(C.ax)} · Y ${fx(C.ay)} · Z ${fx(C.az)} g (total ${fx(m)} g)`]; })],
+    ['Gyroscope', row(['gx', 'gy', 'gz'], C => ['ok', `X ${fx(C.gx, 1)} · Y ${fx(C.gy, 1)} · Z ${fx(C.gz, 1)} °/s`])],
+    ['Magnetometer', row(['mx', 'my', 'mz'], C => { const m = Math.hypot(C.mx, C.my, C.mz); return [m > 5 && m < 150 ? 'ok' : 'warn', `X ${fx(C.mx, 1)} · Y ${fx(C.my, 1)} · Z ${fx(C.mz, 1)} µT (field ${fx(m, 1)} µT)`]; })],
+    ['Heading', row(['heading'], C => ['ok', `${fx(C.heading, 0)}°`])],
+    ['Altimeter', row(['altitude'], C => ['ok', `${fx(C.altitude)} m` + (LAB.cal.altRef !== undefined ? ` · ${fx(C.altitude - LAB.cal.altRef)} m above ground level` : '')])],
+    ['GPS', row(['lat', 'lon'], C => [C.gps_fix ? 'ok' : 'warn', `${C.gps_fix ? 'Fix OK' : 'No fix yet (normal indoors)'} · ${fx(C.lat, 5)}, ${fx(C.lon, 5)}`])],
+    ['Reaction wheel', row(['wheel'], C => ['ok', `${fx(C.wheel, 1)} % effort`])]
+  ];
+  const CHIP = { ok: 'OK', warn: 'Check', bad: 'Problem', off: 'Waiting' };
+  const RAW = [['Temperature', 'temp', '°C', 1], ['Humidity', 'humidity', '%', 1], ['Accel X', 'ax', 'g', 3], ['Accel Y', 'ay', 'g', 3], ['Accel Z', 'az', 'g', 3], ['Gyro X', 'gx', '°/s', 2], ['Gyro Y', 'gy', '°/s', 2], ['Gyro Z', 'gz', '°/s', 2], ['Mag X', 'mx', 'µT', 1], ['Mag Y', 'my', 'µT', 1], ['Mag Z', 'mz', 'µT', 1], ['Heading', 'heading', '°', 1], ['Altitude', 'altitude', 'm', 2], ['Latitude', 'lat', '', 5], ['Longitude', 'lon', '', 5], ['GPS fix', 'gps_fix', '', 0], ['Battery', 'battery_v', 'V', 2], ['Charge', 'battery', '%', 0], ['RSSI', 'rssi', 'dBm', 0], ['SNR', 'snr', 'dB', 1], ['Wheel', 'wheel', '%', 1]];
+  function renderCheck() {
+    const list = CHK.map(([n, f]) => { const [s, t] = f(); return { n, s, t }; });
+    $('chkList').innerHTML = list.map(r => `<div class="crow"><span class="chip ${r.s}">${CHIP[r.s]}</span><div><b>${r.n}</b><small>${esc(r.t)}</small></div></div>`).join('');
+    const ok = list.filter(r => r.s === 'ok').length;
+    $('chkSum').textContent = S.connected ? `${ok} of ${list.length} checks are green` : 'Connect your CubeSat to start';
+    const nx = $('nextHint'), bad = list.filter(r => r.s === 'bad' || r.s === 'warn').map(r => r.n);
+    nx.hidden = !S.connected || !S.times.length;
+    if (!nx.hidden) nx.innerHTML = bad.length ? `<span>🔎 Check these: <b>${esc(bad.join(', '))}</b>. Look at the wiring or the firmware for them.</span>` : '<span>✅ Every sensor looks healthy. <b>Next:</b> calibrate the IMU.</span><button class="btn primary" type="button" id="goImu" style="min-height:34px">Go to IMU Calibration →</button>';
+    if ($('goImu')) $('goImu').onclick = () => show('imu');
+    $('rawBox').innerHTML = RAW.map(([n, k, u, d]) => `<div><small>${n}</small><b>${S.cur[k] === undefined ? '–' : fx(S.cur[k], d) + ' ' + u}</b></div>`).join('');
+    $('linesBox').textContent = S.lines.length ? S.lines.join('\n') : 'Nothing yet. Connect your CubeSat and its lines show up here.';
+    return list;
+  }
+
+  // ---------- Panels ----------
+  const PANELS = [
+    { id: 'check', icon: '📊', name: 'Sensor Check' },
+    { id: 'alt', icon: '📏', name: 'Altimeter', title: 'Altimeter calibration', blurb: 'Set the ground level, lift the CubeSat up, then bring it back down. I\u2019ll check that the altitude follows you.', need: 'You\u2019ll need: a flat table and your hands · about 1 minute', btn: 'Start altimeter calibration', groups: ['Altimeter'], steps: () => ALT, live: () => `Altitude now: <b>${fx(S.cur.altitude)} m</b>` + (LAB.cal.altRef !== undefined ? ` · above ground: <b>${fx(S.cur.altitude - LAB.cal.altRef)} m</b>` : ' · ground level not set yet') },
+    { id: 'imu', icon: '🧭', name: 'IMU Calibration', title: 'Accelerometer · Gyroscope · Magnetometer', blurb: 'Just like calibrating a drone: rest the CubeSat on each of its six faces, hold it still, then move and spin it the way the pictures show.', need: 'You\u2019ll need: a flat table and your hands · about 5 minutes', btn: 'Start IMU calibration', groups: ['Accelerometer', 'Gyroscope', 'Motion', 'Magnetometer'], steps: () => IMU, live: () => `Accel <b>${fx(S.cur.ax)} · ${fx(S.cur.ay)} · ${fx(S.cur.az)}</b> g &nbsp; Gyro <b>${fx(S.cur.gx, 1)} · ${fx(S.cur.gy, 1)} · ${fx(S.cur.gz, 1)}</b> °/s &nbsp; Mag <b>${fx(S.cur.mx, 1)} · ${fx(S.cur.my, 1)} · ${fx(S.cur.mz, 1)}</b> µT` },
+    { id: 'snd', icon: '🔊', name: 'Sound & LED', title: 'Buzzer and status LED', blurb: 'I\u2019ll make the CubeSat beep and light its LED, and you tell me what you heard and saw.', need: 'You\u2019ll need: to see and hear the CubeSat · about 1 minute', btn: 'Start sound & LED test', groups: ['Sound', 'LED'], steps: () => SNDLED },
+    { id: 'wheel', icon: '🌀', name: 'Reaction Wheel', title: 'Reaction wheel test', blurb: 'The wheel spins gently for a few seconds. You\u2019ll read a short safety list first and tick a box to say you understand.', need: 'You\u2019ll need: a clear table, nothing touching the wheel · about 1 minute', btn: 'Start reaction wheel test', groups: ['Reaction wheel'], steps: () => WHEEL, live: () => `Wheel effort now: <b>${fx(S.cur.wheel, 1)} %</b>` },
+    { id: 'report', icon: '📋', name: 'Report' }
+  ];
+  function buildPanels() {
+    $('tabs').innerHTML = PANELS.map(p => `<button type="button" class="btn tab" data-tab="${p.id}">${p.icon} ${p.name}</button>`).join('') + '<button type="button" class="btn primary tab" id="fullBtn">▶ Full guided check</button>';
+    $('panels').innerHTML = `
+      <section id="p-check"><div class="card start" id="startCard" style="margin-bottom:16px"><h2>👋 Let’s get started</h2><ol class="muted" style="color:var(--tx)"><li>Plug your CubeSat’s ESP32 into this computer with the USB cable.</li><li>Press <b>Connect my CubeSat</b> at the top and choose the port.</li><li>Watch the checklist turn green.</li><li>Then pick Altimeter, IMU Calibration, Sound &amp; LED or Reaction Wheel.</li></ol><div style="margin-top:10px"><button class="btn primary" type="button" id="startConnect">🔌 Connect my CubeSat</button></div></div><div class="grid">
+        <div class="card"><h2>Checklist</h2><p class="muted sm" id="chkSum" style="margin:0 0 6px"></p><div class="next" id="nextHint" hidden></div><div id="chkList"></div></div>
+        <div class="card"><h2>Raw data</h2><div class="raw" id="rawBox"></div><h2 style="margin-top:14px">Latest lines from the CubeSat</h2><div class="lines" id="linesBox"></div></div>
+      </div></section>` +
+      PANELS.filter(p => p.steps).map(p => `<section id="p-${p.id}" hidden><div class="card"><h2>${p.icon} ${p.title}</h2><p class="muted" style="margin:0 0 4px">${p.blurb}</p><p class="need">⏱ ${p.need}</p><p class="need needconn" style="color:var(--acc)"><b>🔌 Connect your CubeSat first (button at the top) to unlock this test.</b></p>${p.live ? `<div class="live" id="live-${p.id}"></div>` : ''}<button type="button" class="btn primary" data-run="${p.id}">${p.btn}</button><div id="res-${p.id}" style="margin-top:14px"></div></div></section>`).join('') +
+      `<section id="p-report" hidden><div class="card"><h2>📋 Report</h2><p id="repSum" class="muted" style="margin:0 0 10px"></p><div class="btns" style="justify-content:flex-start;margin:0 0 10px"><button class="btn primary" id="repJson" type="button">Save report (JSON)</button><button class="btn" id="repXlsx" type="button">Export Excel</button><button class="btn" id="repCsv" type="button">Export CSV</button><button class="btn" id="repClear" type="button">Clear results</button></div><div id="res-report"></div></div></section>`;
+    $('tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) show(b.dataset.tab); };
+    $('fullBtn').onclick = () => runWizard([...IMU, ...ALT, ...SNDLED, ...WHEEL], 'Full guided check');
+    document.querySelectorAll('[data-run]').forEach(b => { b.onclick = () => { const p = PANELS.find(x => x.id === b.dataset.run); runWizard(p.steps(), p.name); }; });
+    $('repJson').onclick = () => { if (!LAB.results.length) return toast('Nothing to save yet. Run a test first!'); GARUDA.download('garuda_test_report.json', JSON.stringify(report()), 'application/json'); toast('Saved your test report.'); };
+    $('repXlsx').onclick = () => { if (!LAB.results.length) return toast('Nothing to save yet. Run a test first!'); GARUDA.exportXlsx(rows(), 'lab-results'); toast('Saved your results as an Excel file.'); };
+    $('repCsv').onclick = () => { if (!LAB.results.length) return toast('Nothing to save yet. Run a test first!'); GARUDA.download('garuda_test_results.csv', GARUDA.toCsv(rows()), 'text/csv'); };
+    $('repClear').onclick = () => { if (LAB.busy) return; LAB.results = []; LAB.cal = { spin: {}, acc: {} }; renderAll(); toast('Cleared. Fresh start!'); };
+  }
+  const rows = () => LAB.results.map(r => ({ group: r.g, check: r.n, result: r.status, what_i_saw: r.detail, time: r.time }));
+  function report() {
+    const c = k => LAB.results.filter(r => r.status === k).length;
+    return { app: 'G.A.R.U.D.A.', summary: { passed: c('pass'), warnings: c('warn'), failed: c('fail'), skipped: c('skipped') }, checklist: CHK.map(([n, f]) => { const [s, t] = f(); return { name: n, status: s, reading: t }; }), calibration: LAB.cal, latest_reading: S.cur, results: rows() };
+  }
+  function resTable(groups) {
+    const rs = LAB.results.filter(r => !groups || groups.includes(r.g));
+    return '<table class="tbl"><tr><th>Check</th><th>Result</th><th>What I saw</th></tr>' + (rs.map(r => `<tr><td>${esc(r.g)}: ${esc(r.n)}</td><td style="white-space:nowrap">${ICON[r.status]} ${r.status}</td><td>${esc(r.detail)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No results yet. Press the button above to begin.</td></tr>') + '</table>';
+  }
+  function renderRes() {
+    PANELS.filter(p => p.groups).forEach(p => { const el = $('res-' + p.id); if (el) el.innerHTML = resTable(p.groups); });
+    if ($('res-report')) $('res-report').innerHTML = resTable();
+    const c = k => LAB.results.filter(r => r.status === k).length;
+    if ($('repSum')) $('repSum').textContent = LAB.results.length ? `✅ ${c('pass')} passed · ⚠️ ${c('warn')} to double-check · ❌ ${c('fail')} failed · ⏭️ ${c('skipped')} skipped` : 'No results yet. Run a test and they will appear here.';
+  }
+  function renderAll() { renderRes(); tick(); }
+  function show(id) {
+    LAB.tab = id;
+    PANELS.forEach(p => { const s = $('p-' + p.id); if (s) s.hidden = p.id !== id; });
+    document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
+    renderAll();
+  }
+  function info() {
+    const n = GARUDA.names(), d = v => esc(v || '–');
+    $('infoTxt').innerHTML = `Team <b>${d(n.team)}</b> (ID <b>${d(n.teamId)}</b>) · Lab <b>${d(n.lab)}</b> · CubeSat <b>${d(n.cubesat)}</b>`;
+    document.title = 'CubeSat Testing Lab · ' + (n.cubesat || 'G.A.R.U.D.A.');
+  }
+  function tick() {
+    paintStatus();
+    // Tests unlock once the CubeSat is connected, and the "get started" help goes away.
+    document.querySelectorAll('[data-run],#fullBtn').forEach(b => { b.disabled = !S.connected && !LAB.busy; b.title = S.connected ? '' : 'Connect your CubeSat first'; });
+    document.querySelectorAll('.needconn').forEach(e => { e.hidden = S.connected; });
+    if ($('startCard')) $('startCard').hidden = S.connected;
+    if (LAB.tab === 'check') renderCheck();
+    const p = PANELS.find(x => x.id === LAB.tab);
+    if (p && p.live && $('live-' + p.id)) $('live-' + p.id).innerHTML = p.live();
+  }
+
+  // ---------- Start-up ----------
+  buildPanels(); info(); show('check');
+  $('connect').onclick = connect; $('startConnect').onclick = connect;
+  $('editInfo').onclick = () => { $('infoFields').innerHTML = GARUDA.formHtml('lab'); $('infoOv').hidden = false; };
+  $('infoCancel').onclick = () => { $('infoOv').hidden = true; };
+  $('infoSave').onclick = () => { GARUDA.setNames(GARUDA.readForm($('infoFields'))); $('infoOv').hidden = true; info(); };
+  function setTheme(t) {
+    document.documentElement.dataset.theme = t;
+    $('theme').textContent = t === 'dark' ? '\u2600 Day mode' : '\uD83C\uDF19 Night mode';
+    try { localStorage.setItem('garuda-theme', t); } catch (e) { /* ignore */ }
+  }
+  $('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  let th = null; try { th = localStorage.getItem('garuda-theme'); } catch (e) { /* ignore */ }
+  setTheme(th || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  setInterval(tick, 500);
+})();
+</script>
+</body>
+</html>

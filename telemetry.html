@@ -1,0 +1,3205 @@
+<!DOCTYPE html>
+<!--
+  G.A.R.U.D.A. - Ground-link Automated Receiver & Unified Data Analyzer
+  Crafted with passion by Niranjan CS.
+
+  Hi there! This is one single, static HTML file: no build step, no server.
+  Drop it in a GitHub repo as index.html, switch on GitHub Pages, and you're live.
+  Tip: Web Serial needs Chrome or Edge, and works on https:// (GitHub Pages is perfect) or localhost.
+-->
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" href="assets/logo-dark.webp">
+  <meta name="author" content="Niranjan CS">
+  <meta name="description" content="G.A.R.U.D.A. - Ground-link Automated Receiver &amp; Unified Data Analyzer. A friendly CubeSat ground station dashboard, crafted by Niranjan CS.">
+  <title>G.A.R.U.D.A. · Mission Control</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]']
+    };
+  </script>
+  <style>
+:root{--bg:#ffffff;--card:#ffffff;--line:#d9d9de;--edge:#a33a3f;--tx:#000;--mut:#555;--g:#3a3a3f;--r:#d9302b;--b:#7a8594;--p:#2a2a2e;--soft:#f0f0f2;--grid:#e2e2e6;--line2:#e4e4e8;--mapbg:#ececee;--road:#cfcfd4;--road2:#d9d9de;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--bg:#0b0b0d;--card:#131316;--line:#2a2a30;--edge:#6a1f25;--tx:#ececec;--mut:#8f8f98;--g:#c4c4c0;--soft:#1b1b1f;--grid:#26262c;--line2:#222227;--mapbg:#161618;--road:#3a3a3f;--road2:#2c2c30}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 1px #3a3a3f}.logo img{width:100%;height:100%;display:block;border-radius:50%}
+.org b{font-size:19px;font-weight:700;letter-spacing:.14em;color:#000}
+h1{font-size:18px;font-weight:500;margin:0 0 0 12px;padding-left:16px;border-left:1px solid var(--line)}
+.sp{flex:1}
+button{font:inherit;font-size:12px;padding:8px 16px;border-radius:6px;border:1px solid transparent;color:#fff;cursor:pointer;letter-spacing:.03em}
+button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#conn{background:#a31f1f}#conn.on{background:#3a3a3f}.sup{background:#2a2a2e}.dl{background:#111;color:#fff}
+main{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;padding:18px 22px 40px;max-width:1500px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.card.ch{border-color:var(--edge)}
+.card h2{font-size:16px;font-weight:500;margin:0 0 6px}
+.c4{grid-column:span 4}.c8{grid-column:span 8}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}
+.top{display:grid;grid-template-columns:1fr;gap:14px;grid-column:span 12;grid-template-columns:repeat(3,1fr)}
+.stack{display:grid;gap:14px;grid-template-rows:1fr 1fr}
+.map{padding:0;overflow:hidden;position:relative;min-height:170px}
+.map svg{width:100%;height:100%;display:block}
+.map span{position:absolute;left:10px;top:8px;font-weight:600;color:var(--tx)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;height:100%}
+.lbl{font-size:12px;color:var(--mut)}.big{font-size:22px;font-weight:500}
+.chip{background:var(--soft);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--mut);text-align:center}.chip b{display:block;color:var(--tx);font-size:14px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:46px}.bars i{width:9px;background:#16a34a;border-radius:2px}
+canvas{width:100%;height:150px;display:block}
+.val{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border-radius:8px;padding:8px 12px;margin-top:8px}
+.val b{font-size:22px;font-weight:500}.val small{color:var(--mut);font-size:10px;text-align:right}
+.raw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 18px;font-size:12px}
+.raw div{display:flex;justify-content:space-between;gap:6px;border-bottom:1px solid var(--line2);padding:2px 0}.raw span{color:var(--mut)}
+.leg{display:flex;gap:12px;font-size:11px;color:var(--mut)}.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+header{display:block}.hd1{display:flex;align-items:center;gap:14px;margin-bottom:12px}.ttl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sub{font-size:13px;color:var(--mut);margin-top:3px}.ttl h1{margin:0;padding-left:16px;font-size:20px}
+.tag{font:600 12px ui-monospace,Menlo,Consolas,monospace;color:#b3201c;border:1px solid #d9302b;background:#fdecec;border-radius:4px;padding:3px 8px;letter-spacing:.04em}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;background:#f6f6f8}
+.pill i{width:10px;height:10px;border-radius:50%;background:#d9302b;display:inline-block}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.seg{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:8px;background:#f0f0f2}
+.seg button{background:transparent;color:#000;font-weight:600;padding:6px 12px}.seg button.act{background:#a31f1f;color:#fff}
+select{font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:#f6f6f8;color:#000}
+.ctl button{font-weight:600;font-size:13px;padding:9px 16px;border-radius:8px}
+.b-red{background:#a31f1f}.b-gry{background:#e4e4e8;color:#000;border-color:var(--line)}.b-ind{background:#eceeff;color:#3730a3;border-color:#c7cbf5}.b-crim{background:#8b1034}
+.note{font-size:12px;color:#b3201c}.sketch{background:#f6f6f8;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:11px;overflow-x:auto;margin:10px 0 0;white-space:pre-wrap}
+@media(max-width:900px){.top{grid-template-columns:1fr}.c4,.c8,.c5,.c6,.c7{grid-column:span 12}.raw{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+header{background:#08080a;color:#f2f2f2;padding:16px 22px 14px;border-bottom:1px solid #1d1d22}
+header .logo{width:56px;height:56px;flex:none;box-shadow:0 0 0 1px #2a2a30}
+header .org b{color:#fff;font-size:22px;font-weight:800;letter-spacing:.22em}
+header .ttl h1{color:#fff;font-size:22px;font-weight:600;border-left:1px solid #33333a;padding-left:16px;margin-left:4px}
+header .sub{color:#9a9aa6;margin-top:5px}
+header .tag{color:#ff5a52;background:#2a0d0f;border:1px solid #7a1c1f;padding:6px 10px}
+header .pill{background:#15151a;border:1px solid #2c2c33;color:#f2f2f2;padding:6px 14px;font-size:13px}
+header .pill i{background:#c01f27}
+header .ctl{margin-top:14px}header .ctl+.ctl{margin-top:10px}
+header .seg{background:#0d1422;border-color:#1c2a44;border-radius:10px}
+header .seg button{color:#fff;padding:8px 14px;border-radius:7px}header .seg button.act{background:#a31f1f}
+header select{background:#0d1422;border-color:#27324a;color:#fff}
+header .b-gry{background:#141b2b;color:#fff;border-color:#26314a}
+header .b-ind{background:#1a1448;color:#a5a3ff;border-color:#3a30a0}
+header .dl{background:#141b2b;border-color:#26314a;color:#fff}
+header .note{color:#ff9b96}
+header .sketch{background:#0d1422;border-color:#27324a;color:#cfd3e0}
+
+.map svg [fill="#ececee"]{fill:var(--mapbg)}.map svg [stroke="#cfcfd4"]{stroke:var(--road)}.map svg [stroke="#d9d9de"]{stroke:var(--road2)}
+.map svg rect[fill="#fff"],.map svg circle[fill="#fff"]{fill:var(--card)}.map svg text{fill:var(--mut)}
+.row svg [stroke="#bbb"]{stroke:var(--line)}.row svg[stroke="#000"]{stroke:var(--tx)}.row svg circle[fill="#000"]{fill:var(--tx)}
+main[hidden]{display:none}.c12{grid-column:span 12}
+.tb{width:100%;border-collapse:collapse;font-size:13px}.tb th{text-align:left;color:var(--mut);font-weight:500;padding:4px 6px}.tb td{padding:5px 6px;border-top:1px solid var(--line2)}
+.tb input,.tools input,.tools select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--soft);color:var(--tx);font:inherit}.tb input{width:76px}
+.ok{color:#16a34a}.bad{color:#d9302b;font-weight:600}
+.al{display:flex;align-items:center;gap:10px;padding:9px 10px;border-left:4px solid #d9302b;border-radius:8px;margin-bottom:8px;background:var(--soft)}.al.ack{border-left-color:#d4a017}.al span{flex:1}.al small{color:var(--mut)}
+.nom{padding:14px;border-radius:8px;background:var(--soft);color:#16a34a;font-weight:600}
+.ty{font:700 11px ui-monospace,Menlo,Consolas,monospace;padding:2px 7px;border-radius:4px;background:var(--soft)}.ty.ALERT{color:#d9302b}.ty.CLEARED{color:#16a34a}.ty.NOTE{color:#4f6bd9}
+.lg{max-height:340px;overflow:auto}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.tools input{flex:1;min-width:180px}
+main .btn{background:#2a2a2e;color:#fff;padding:7px 14px;font-size:12px}
+.bdg{display:inline-block;min-width:18px;padding:1px 6px;margin-left:6px;border-radius:9px;background:#d9302b;color:#fff;font-size:11px}
+@media(max-width:900px){.c12{grid-column:span 12}}
+/* Adaptive Theme Extensions for Page 2 (GSU Serial & Wheels) and Cyber GSU View */
+.mortis-main {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px;
+  padding: 18px 22px 40px;
+  max-width: 1500px;
+  margin: auto;
+}
+.mortis-main[hidden] { display: none !important; }
+.m-page-banner {
+  grid-column: span 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--soft);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--tx);
+}
+.m-page-banner b {
+  color: var(--tx);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.m-btn {
+  font: inherit;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--p);
+  color: #fff;
+  cursor: pointer;
+}
+.m-dl {
+  background: #111;
+  color: #fff;
+  font-weight: 600;
+}
+:root[data-theme="dark"] .m-dl {
+  background: #cfcfcb;
+  color: #16161a;
+}
+.glass-card {
+  background: var(--card) !important;
+  border: 1px solid var(--edge) !important;
+  color: var(--tx) !important;
+  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.18);
+}
+#cyberMain {
+  background: var(--bg);
+  color: var(--tx);
+}
+#cyberMain [class*="bg-slate-950"],
+#cyberMain [class*="bg-slate-900"],
+#cyberMain [class*="bg-slate-800"] {
+  background-color: var(--soft) !important;
+  border-color: var(--line) !important;
+  color: var(--tx) !important;
+}
+#cyberMain [class*="text-white"],
+#cyberMain [class*="text-slate-200"],
+#cyberMain [class*="text-slate-300"] {
+  color: var(--tx) !important;
+}
+#cyberMain [class*="text-slate-400"],
+#cyberMain [class*="text-slate-500"] {
+  color: var(--mut) !important;
+}
+
+  main#cyberMain:not(.hidden){display:block;max-width:1600px;padding:16px}
+
+:root:not([data-theme="dark"]) header{background:#fff;color:#111;border-bottom:1px solid #d9d9de}
+:root:not([data-theme="dark"]) header .logo{box-shadow:0 0 0 1px #d4d4d8}
+:root:not([data-theme="dark"]) header .org b,:root:not([data-theme="dark"]) header .ttl h1{color:#000}
+:root:not([data-theme="dark"]) header .ttl h1{border-left-color:#d4d4d8}
+:root:not([data-theme="dark"]) header .sub{color:#55555c}
+:root:not([data-theme="dark"]) header .tag{color:#b3261e;background:#fdecea;border-color:#e8b4b0}
+:root:not([data-theme="dark"]) header .pill{background:#f3f3f5;border-color:#d9d9de;color:#111}
+:root:not([data-theme="dark"]) header .seg{background:#f0f0f2;border-color:#d9d9de}
+:root:not([data-theme="dark"]) header .seg button{color:#111}
+:root:not([data-theme="dark"]) header .seg button.act{color:#fff}
+:root:not([data-theme="dark"]) header select{background:#fff;border-color:#c9c9d0;color:#111}
+:root:not([data-theme="dark"]) header .b-gry,:root:not([data-theme="dark"]) header .dl{background:#f0f0f2;color:#111;border-color:#d4d4d8}
+:root:not([data-theme="dark"]) header .b-ind{background:#ecebff;color:#3d34b0;border-color:#bdb8f5}
+:root:not([data-theme="dark"]) header .note{color:#b3261e}
+:root:not([data-theme="dark"]) header .sketch{background:#f5f5f7;color:#222;border-color:#d4d4d8}
+html,body,button,select,input,textarea,.font-sans{font-family:'Saira','Segoe UI',system-ui,-apple-system,Roboto,sans-serif}
+.font-mono,.mono-val,pre,code,#baud,select#baud,select#baudSelect,.tag{font-family:ui-monospace,Menlo,Consolas,monospace}
+header .org b,header .org{letter-spacing:0 !important;word-spacing:0}
+.chart-filter-btn{background:transparent;border:0}
+.chart-filter-btn.bg-cyan-600{background:#0891b2;color:#fff}
+.chart-filter-btn:not(.bg-cyan-600){color:var(--tx,#ececec)}
+.chart-filter-btn:not(.bg-cyan-600):hover{background:rgba(8,145,178,.18)}
+.setup-ov{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:16px}
+.setup-ov.open{display:flex}
+.setup-box{width:100%;max-width:440px;background:#111113;color:#ececec;border:1px solid #5c1a1f;border-radius:14px;padding:22px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.setup-box h2{margin:0 0 4px;font-size:20px;font-weight:700}.setup-box p{margin:0 0 16px;color:#9a9aa6;font-size:13px}
+.setup-box label{display:block;font-size:12px;font-weight:600;margin:12px 0 5px;color:#b8b8c2}
+.setup-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #2c2c33;background:#08080a;color:#fff;font:inherit;font-size:14px}
+.setup-box input:focus{outline:2px solid #a31f1f;outline-offset:1px}
+.setup-act{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.setup-act button{padding:10px 18px;border-radius:8px;border:1px solid #2c2c33;background:#1a1a1f;color:#fff;font-weight:600;cursor:pointer}
+.setup-act button.go{background:#a31f1f;border-color:#a31f1f}
+:root:not([data-theme="dark"]) .setup-box{background:#fff;color:#111;border-color:#d9d9de}
+:root:not([data-theme="dark"]) .setup-box p{color:#55555c}:root:not([data-theme="dark"]) .setup-box label{color:#333}
+:root:not([data-theme="dark"]) .setup-box input{background:#f5f5f7;border-color:#cfcfd6;color:#000}
+:root:not([data-theme="dark"]) .setup-act button{background:#f0f0f2;color:#111;border-color:#d4d4d8}
+:root:not([data-theme="dark"]) .setup-act button.go{background:#a31f1f;color:#fff}
+.logo{width:60px!important;height:60px!important;border-radius:12px!important;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover;border-radius:12px!important;display:block}
+.logo .logo-l{display:none}
+:root:not([data-theme="dark"]) .logo .logo-d{display:none}
+:root:not([data-theme="dark"]) .logo .logo-l{display:block}
+.logo{width:72px!important;height:72px!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible}
+.logo img{border-radius:0!important;object-fit:contain}
+:root:not([data-theme="dark"]) :root:not([data-theme="dark"]) :root:not([data-theme="dark"]) :root:not([data-theme="dark"]) #firmwareModal h2,:root:not([data-theme="dark"]) #firmwareModal h3,:root:not([data-theme="dark"]) #firmwareModal .text-white{color:#0f172a}
+:root:not([data-theme="dark"]) #firmwareModal .bg-slate-950 .text-white,:root:not([data-theme="dark"]) #firmwareModal pre{color:#e2e8f0}
+.logo{width:auto!important;height:84px!important;border-radius:0!important;overflow:visible}
+.logo img{height:100%!important;width:auto!important;object-fit:contain;border-radius:0!important}
+.logo .logo-d{mix-blend-mode:screen;filter:none}
+.logo .logo-l{mix-blend-mode:multiply;filter:none}
+header .org{display:block!important}
+/* Smooth day/night switch */
+body,header,.card,.glass-card,button,select,input,pre{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease}
+/* Night mode: deep slate with glowing cyan accents (tactical Cyber GSU look) */
+:root[data-theme="dark"]{--bg:#05080d;--card:#0c121a;--soft:#141c26;--line:#1c2733;--line2:#18212b;--edge:#0e7490}
+:root[data-theme="dark"] body{background:radial-gradient(1100px 420px at 50% -8%,rgba(34,211,238,.09),transparent 65%),#05080d}
+:root[data-theme="dark"] header{border-bottom:1px solid rgba(34,211,238,.35);box-shadow:0 1px 26px rgba(34,211,238,.13)}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .glass-card{border-color:rgba(34,211,238,.28)!important;box-shadow:0 0 22px rgba(34,211,238,.07)}
+:root[data-theme="dark"] header button:hover{box-shadow:0 0 14px rgba(34,211,238,.4)}
+:root[data-theme="dark"] .acro b{color:#22d3ee;text-shadow:0 0 10px rgba(34,211,238,.6)}
+/* Day mode: crisp and bright for sunny field tests */
+:root:not([data-theme="dark"]) .acro b{color:#a31f1f}
+.acro{font-size:15px;font-weight:600;letter-spacing:.01em}.acro b{font-size:17px}
+.gfoot{text-align:center;padding:22px 16px 34px;font-size:13px;color:var(--mut);border-top:1px solid var(--line);margin-top:8px}
+.warn{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 18px;background:#fff7e0;color:#5a4300;border-bottom:1px solid #f0d98a;font-size:14px;text-align:center}
+.warn button{background:#5a4300;color:#fff;border:0;border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
+:root[data-theme="dark"] .warn{background:#2a2108;color:#ffe9a8;border-bottom-color:#5c4a12}
+:root[data-theme="dark"] .warn button{background:#ffe9a8;color:#2a2108}
+.lab-run:disabled{opacity:.45;cursor:not-allowed}
+/* The lab is its own page: stack its cards normally instead of the dashboard's 12-column main grid. */
+#testPage{display:block!important;max-width:1200px}
+#testPage>section{grid-column:auto!important;min-width:0}
+
+/* ---- Tidy header: one look for every button, easy to read on phones ---- */
+header.gh{--g-tx:#0f172a;--g-mut:#4b5563;--g-line:#d7dee8;--g-soft:#f1f5f9;--g-acc:#a31f1f;--g-acc2:#0e7490;--g-on2:#fff;--g-pop:#fff;padding:12px 20px 8px}
+:root[data-theme="dark"] header.gh{--g-tx:#e5e7eb;--g-mut:#9aa6b8;--g-line:#1f2a37;--g-soft:#111a24;--g-acc:#f43f5e;--g-acc2:#22d3ee;--g-on2:#04212b;--g-pop:#0c121a}
+.gh-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.gh-brand{display:flex;align-items:center;gap:14px;min-width:0}
+header.gh .logo{width:auto!important;height:78px!important;flex:none;border-radius:0!important;box-shadow:none!important;overflow:visible!important;background:none!important}
+header.gh .logo img{height:100%!important;width:auto!important;mix-blend-mode:normal!important;filter:none!important;border-radius:0!important}
+header.gh .ttl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+:root header.gh .org b{font-size:23px;letter-spacing:.12em;font-weight:800;color:var(--g-tx)!important}
+.gh-page{font-size:20px;font-weight:600;padding-left:10px;border-left:1px solid var(--g-line);color:var(--g-tx)}
+header.gh .sub{margin-top:3px;color:var(--g-mut)}
+.gh-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+header.gh .pill{padding:7px 12px}
+.gh-info{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:8px 0 8px;font-size:14px;color:var(--g-mut)}
+.gh-info b{color:var(--g-tx);font-size:17px}
+.gh-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--g-line);border-radius:14px;background:var(--g-soft)}
+.gh-hint{margin:8px 2px 8px;font-size:14px;color:var(--g-mut)}
+.gh-tabs{display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:thin;padding:2px 0 6px}
+.gh-tabs button{flex:none;white-space:nowrap}
+.gh-save{position:relative}
+.gh-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:70;min-width:250px;padding:6px;background:var(--g-pop);border:1px solid var(--g-line);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.gh-menu[hidden]{display:none}
+:root header.gh .gh-menu button{display:block;width:100%;text-align:left;border:0!important;background:transparent!important;border-radius:8px;min-height:38px;padding:0 12px}
+:root header.gh .gh-menu button:hover{background:var(--g-soft)!important}
+:root header.gh button,:root header.gh a.gh-btn,:root header.gh select{min-height:40px;font:600 14px/1.1 Saira,system-ui,sans-serif;border-radius:10px;padding:0 14px;border:1px solid var(--g-line)!important;background:var(--g-soft)!important;color:var(--g-tx)!important;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+:root header.gh select{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:500}
+:root header.gh .b-red{background:var(--g-acc)!important;border-color:var(--g-acc)!important;color:#fff!important}
+:root header.gh .gh-tabs button.b-crim{background:var(--g-acc2)!important;border-color:var(--g-acc2)!important;color:var(--g-on2)!important}
+:root header.gh .b-ind{color:var(--g-acc2)!important}
+header.gh .seg{display:inline-flex;gap:3px;padding:3px;border-radius:12px;border:1px solid var(--g-line);background:var(--g-pop)}
+:root header.gh .seg button{min-height:34px;background:transparent!important;border-color:transparent!important}
+:root header.gh .seg button.act{background:var(--g-acc)!important;border-color:var(--g-acc)!important;color:#fff!important}
+:root header.gh #editMissionBtn{min-height:32px;padding:0 10px;font-size:13px}
+header.gh button:focus-visible,header.gh a:focus-visible,header.gh select:focus-visible{outline:2px solid var(--g-acc2);outline-offset:2px}
+@media (max-width:700px){
+  header.gh{padding:10px 12px 6px}
+  header.gh .logo{height:58px!important}
+  :root header.gh .org b{font-size:18px}.gh-page{font-size:16px}
+  header.gh .sub .acro{font-size:12.5px;line-height:1.35}
+  header.gh .ttl{gap:8px}.gh-page{border-left:0;padding-left:0;font-size:15px}
+  .gh-brand{gap:10px;align-items:center}
+  .gh-actions{width:100%;gap:6px}.gh-actions .pill{flex:1 0 100%;justify-content:center}.gh-save{flex:1 1 0}.gh-actions>*{flex:1 1 0}
+  :root header.gh .gh-actions button,:root header.gh .gh-actions a.gh-btn{padding:0 6px;font-size:13px;width:100%}
+  .gh-bar .seg{width:100%}.gh-bar .seg button{flex:1}
+  .gh-bar select,.gh-bar #conn,.gh-bar #pausebtn,.gh-bar #skb{flex:1 1 42%}
+  .gh-menu{right:auto;left:0;min-width:240px}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/garuda.js"></script>
+<script>GARUDA.gate('telemetry');</script>
+</head>
+<body>
+  <div id="mortisWorkspace">
+    <header class="gh">
+  <div class="gh-top">
+    <div class="gh-brand">
+      <div class="logo"><!-- 🦅 Swap in your own logo: replace assets/logo-dark.webp (shown in Night mode) and assets/logo-light.webp (shown in Day mode), or change these two src paths. -->
+        <img class="logo-d" alt="G.A.R.U.D.A. logo" src="assets/logo-dark.webp"><img class="logo-l" alt="G.A.R.U.D.A. logo" src="assets/logo-light.webp"></div>
+      <div class="gh-title">
+        <div class="ttl"><span class="org"><b>G.A.R.U.D.A.</b></span><span class="gh-page">CubeSat Telemetry</span></div>
+        <div class="sub"><span class="acro"><b>G</b>round-link <b>A</b>utomated <b>R</b>eceiver &amp; <b>U</b>nified <b>D</b>ata <b>A</b>nalyzer</span></div>
+      </div>
+    </div>
+    <div class="gh-actions">
+      <span class="pill"><i id="dot"></i><span id="pillTxt">Practice mode · simulated LoRa</span></span>
+      <div class="gh-save"><button type="button" id="saveBtn" class="b-gry" aria-haspopup="true" aria-expanded="false">💾 Save data ▾</button>
+        <div class="gh-menu" id="saveMenu" hidden role="menu">
+          <button type="button" role="menuitem" data-save="downloadXlsxBtn">Excel spreadsheet (.xlsx)</button>
+          <button type="button" role="menuitem" data-save="downloadCsvBtn">CSV file (.csv)</button>
+          <button type="button" role="menuitem" data-save="downloadJsonBtn">JSON file (.json)</button>
+          <button type="button" role="menuitem" data-save="downloadRawLogBtn">Raw serial log (.log)</button>
+        </div></div>
+      <a href="index.html" class="b-gry gh-btn">← Welcome</a>
+      <button type="button" id="theme" class="b-gry">🌙 Night mode</button>
+    </div>
+  </div>
+  <div class="gh-info"><span>CubeSat <b id="satNameLbl">Mission Control</b></span><span id="authorChip"></span><button type="button" id="editMissionBtn" class="b-gry" title="Edit your details" aria-label="Edit your details">✎ Edit details</button></div>
+  <div class="gh-bar" role="group" aria-label="Choose where the data comes from">
+    <div class="seg" role="group" aria-label="Data source"><button id="m-sim" class="act" aria-pressed="true" title="Simulated packets, no hardware needed">Practice mode</button><button id="m-ser" aria-pressed="false" title="Real data from your ESP32 over USB">Live ESP32</button></div>
+    <select id="baud" aria-label="Baud rate"><option value="9600">9600 baud</option><option value="57600">57600 baud</option><option value="115200" selected>115200 baud</option><option value="230400">230400 baud</option></select>
+    <button id="conn" class="b-red">▣ Connect my ESP32</button>
+    <button id="pausebtn" class="b-gry">Pause the stream</button>
+    <button id="skb" class="b-ind">&lt;/&gt; ESP32 code &amp; format</button>
+    <span id="note" class="note" role="status"></span>
+  </div>
+  <p class="gh-hint" id="ghHint" role="status">You\u2019re in practice mode with simulated packets. To use real data, choose \u201cLive ESP32\u201d.</p>
+  <nav class="gh-tabs" aria-label="Pages">
+    <button type="button" class="b-crim" id="tabMortisPage1">📡 Live Telemetry</button>
+    <button type="button" class="b-gry" id="tabMortisPage2">🛞 Serial &amp; Wheels</button>
+    <button type="button" class="b-gry" id="tabMortisBoth">🧩 Both together</button>
+    <button type="button" class="b-gry" id="tabCyberPage">🛰️ 3D, Map &amp; Charts</button>
+    <button type="button" class="b-gry" id="tab-ops">🔔 Alerts &amp; Log<span class="bdg" id="bdg" hidden>0</span></button>
+  </nav>
+  <div hidden id="legacyHdrBtns"><button type="button" class="b-crim" id="tab-tel" style="display:none">Telemetry</button><button type="button" id="gen2ViewBtn">Overview</button><button id="mortisUsbBtn">USB</button><button id="sup">SUPPORT</button><button id="dl">DOWNLOAD DATA</button></div>
+  <pre id="sketch" class="sketch" hidden>// ESP32 reads the GSU LoRa RX and prints ONE JSON line per packet over USB serial
+// Serial.begin(115200);  (match the baud rate selected above)
+// Example line (all keys optional, units: g, deg/s, uT, m, C, V, dBm):
+{"temp":26.2,"ax":-0.01,"ay":-0.04,"az":0.57,"gx":3.25,"gy":-18.9,"gz":14.47,"mx":33.0,"my":22.0,"mz":15.3,"alt":6.2,"batt":3.96,"rssi":-48,"lat":20.59381,"lon":78.96319}
+// Arduino: Serial.printf("{\"temp\":%.2f,\"alt\":%.2f,\"batt\":%.2f,\"rssi\":%d}\n", t, alt, v, rssi);</pre>
+</header>
+<!-- Friendly heads-up for browsers without Web Serial (Safari, Firefox, most phones). Shown by the script at the bottom. -->
+<div class="warn" id="browserWarn" role="alert" hidden><span>👋 Hey there! To connect to the hardware, you’ll need a browser that supports Web Serial, like <b>Chrome</b> or <b>Edge</b>. No worries though: the practice simulator works everywhere, so feel free to explore!</span><button type="button" id="browserWarnX">Got it</button></div>
+    <main id="tel">
+  <div id="mortisPage1" style="display:contents"><span id="mStreamSourceLabel" hidden>ACTIVE</span></div>
+  <section class="top">
+    <div class="card map" aria-label="Map">
+      <span>Map</span>
+      <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stylised map with satellite position">
+        <rect width="400" height="200" fill="#ececee"/>
+        <path d="M0 150 L90 60 L130 0" stroke="#cfcfd4" stroke-width="9" fill="none"/>
+        <path d="M150 0 L170 90 L230 200" stroke="#5c1a1f" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+        <path d="M250 80 H330 V145 M250 80 V200 M290 200 V150 H360" stroke="#d9d9de" stroke-width="5" fill="none"/>
+        <g id="mortisMapPin" transform="translate(168 62)"><path d="M0 0C-9-12-12-20-8-27A12 12 0 0 1 8-27C12-20 9-12 0 0Z" fill="#d9302b"/><circle cy="-23" r="4.5" fill="#fff"/></g>
+        <rect x="6" y="178" width="78" height="16" rx="3" fill="#fff" opacity=".85"/>
+        <text x="12" y="190" font-size="9" fill="#555">OpenStreetMap</text>
+      </svg>
+    </div>
+    <div class="stack">
+      <div class="card"><div class="row"><div><div class="lbl">Heading</div><div class="big" id="head">0° N</div></div>
+        <svg width="62" height="62" viewBox="-31 -31 62 62" aria-hidden="true"><circle r="28" fill="none" stroke="#bbb" stroke-width="2"/><g id="needle"><path d="M0-22L5 0H-5Z" fill="#d9302b"/><path d="M0 22L5 0H-5Z" fill="#8d96a3"/></g></svg></div></div>
+      <div class="card"><div class="row"><div><div class="lbl">Lat</div><div id="lat">20.59381° N</div><div class="lbl" style="margin-top:4px">Lon</div><div id="lon">78.96319° E</div></div>
+        <div class="chip">Latency<b id="lat2">167 ms</b></div></div></div>
+    </div>
+    <div class="stack">
+      <div class="card"><div class="row"><div><div class="lbl">Battery</div><div class="big" id="batt">3.96 V</div></div><div class="bars" id="bars"></div></div></div>
+      <div class="card"><div class="row"><div><div class="lbl">Signal strength</div><div class="big" id="rssi">-48 dBm</div></div>
+        <svg width="34" height="28" viewBox="0 0 34 28" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M3 10a20 20 0 0 1 28 0M8 16a13 13 0 0 1 18 0M13 21a6 6 0 0 1 8 0"/><circle cx="17" cy="25" r="1" fill="#000"/></svg></div></div>
+    </div>
+  </section>
+
+  <section class="card ch c4"><h2>Magnetometer</h2><div class="leg"><span><i style="background:var(--r)"></i>X</span><span><i style="background:var(--g)"></i>Y</span><span><i style="background:var(--b)"></i>Z</span></div><canvas id="c-mag"></canvas><div class="val"><b id="v-mag">0.00</b><small>µT (X)<br>Last updated <span class="ts"></span></small></div></section>
+  <section class="card ch c4"><h2>Gyroscope</h2><div class="leg"><span><i style="background:var(--r)"></i>X</span><span><i style="background:var(--g)"></i>Y</span><span><i style="background:var(--b)"></i>Z</span></div><canvas id="c-gyr"></canvas><div class="val"><b id="v-gyr">0.00</b><small>°/s (X)<br>Last updated <span class="ts"></span></small></div></section>
+  <section class="card ch c4"><h2>Field strength</h2><div class="leg"><span><i style="background:var(--g)"></i>|B|</span></div><canvas id="c-fld"></canvas><div class="val"><b id="v-fld">0.00</b><small>µT total<br>Last updated <span class="ts"></span></small></div></section>
+
+  <section class="card ch c8"><h2>Altitude</h2><canvas id="c-alt" style="height:170px"></canvas><div class="val"><b id="v-alt">0.00</b><small>m<br>Last updated <span class="ts"></span></small></div></section>
+  <section class="card c4" style="grid-column:span 4"><h2>Raw data</h2><div class="raw" id="raw"></div></section>
+
+  <section class="card ch c6"><h2>Acceleration</h2><canvas id="c-acc"></canvas><div class="val"><b id="v-acc">0.00</b><small>g (magnitude)<br>Last updated <span class="ts"></span></small></div></section>
+  <section class="card ch c6"><h2>Temperature</h2><canvas id="c-tmp"></canvas><div class="val"><b id="v-tmp">0.00</b><small>°C<br>Last updated <span class="ts"></span></small></div></section>
+</main>
+    <main id="ops" hidden>
+  <section class="card c7"><h2>Active alerts</h2><div id="alerts"></div></section>
+  <section class="card c5"><h2>Thresholds</h2><table class="tb" id="thr"></table></section>
+  <section class="card c12"><h2>Mission log</h2>
+    <div class="tools"><input id="ln" maxlength="200" placeholder="Add an operator note…" aria-label="Operator note"><button class="btn" id="la">Add note</button>
+      <select id="lf" aria-label="Filter log"><option value="">All entries</option><option>ALERT</option><option>CLEARED</option><option>EVENT</option><option>NOTE</option><option>SYSTEM</option></select>
+      <button class="btn" id="lc">Copy log</button><button class="btn" id="lx">Clear log</button></div>
+    <div class="lg"><table class="tb" id="log"></table></div></section>
+</main>
+    <main id="mortisPage2" class="mortis-main" hidden>
+      <div class="m-page-banner">
+        <div><b>PAGE 2 · G.A.R.U.D.A. GSU CONTROL, REACTION WHEELS &amp; SERIAL STREAM</b> — ADCS Wheel Telemetry, LoRa RF Link Budget, USB Serial Dump &amp; Data Export</div>
+        <span style="color:var(--m-mut)">GSU Receiver: <strong id="mP2PortBadge" style="color:#d9302b">ESP32 LORA 433/868/915 MHz</strong></span>
+      </div>
+
+      <!-- Page 2 Top 3-Column Strip (Matches Page 1 .top layout) -->
+      <section class="top">
+        <!-- 3D Attitude & Reaction Wheel Visualizer Card -->
+        <div class="card map" aria-label="3D Attitude Visualizer">
+          <span>3D Attitude &amp; Wheels</span>
+          <canvas id="c-m-cube" style="width:100%;height:185px;display:block;background:var(--mapbg)"></canvas>
+        </div>
+
+        <!-- Stack 1: Reaction Wheel Speed + LoRa SNR / Airtime -->
+        <div class="stack">
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="lbl">Wheel strength</div>
+                <div class="big" id="m-p2-wheel">64.2 %</div>
+              </div>
+              <div class="chip">Rotor Speed<b id="m-p2-rpm">2450 RPM</b></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="lbl">LoRa SNR</div>
+                <div id="m-p2-snr">11.3 dB</div>
+                <div class="lbl" style="margin-top:4px">Airtime</div>
+                <div id="m-p2-toa">583 ms</div>
+              </div>
+              <div class="chip">Data rate<b id="m-p2-dr">1641 bps</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stack 2: Internal Humidity + Packet Counter -->
+        <div class="stack">
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="lbl">Humidity</div>
+                <div class="big" id="m-p2-hum">63.9 %</div>
+              </div>
+              <div class="bars" id="m-p2-humbars"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="lbl">Packets logged</div>
+                <div class="big" id="m-p2-pkts">12</div>
+              </div>
+              <div class="chip">Packet size<b id="m-p2-psz">118 B</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 2 Middle Row: 3 Chart Cards (Reaction Wheels, LoRa RSSI/SNR, Humidity) -->
+      <section class="card ch c4">
+        <h2>Reaction wheels</h2>
+        <div class="leg">
+          <span><i style="background:var(--m-r)"></i>Wheel X</span>
+          <span><i style="background:var(--m-g)"></i>Wheel Y</span>
+          <span><i style="background:var(--m-b)"></i>Wheel Z</span>
+        </div>
+        <canvas id="c-m-whl" class="m-chart"></canvas>
+        <div class="val"><b id="v-m-whl">64.20</b><small>% effort (X)<br>Last updated <span class="ts"></span></small></div>
+      </section>
+
+      <section class="card ch c4">
+        <h2>Signal strength &amp; SNR</h2>
+        <div class="leg">
+          <span><i style="background:var(--m-r)"></i>RSSI (dBm)</span>
+          <span><i style="background:var(--m-g)"></i>SNR (dB)</span>
+        </div>
+        <canvas id="c-m-rf" class="m-chart"></canvas>
+        <div class="val"><b id="v-m-rf">-48</b><small>dBm link<br>Last updated <span class="ts"></span></small></div>
+      </section>
+
+      <section class="card ch c4">
+        <h2>Inside humidity</h2>
+        <div class="leg"><span><i style="background:var(--m-g)"></i>% RH</span></div>
+        <canvas id="c-m-hum" class="m-chart"></canvas>
+        <div class="val"><b id="v-m-hum">63.90</b><small>% relative<br>Last updated <span class="ts"></span></small></div>
+      </section>
+
+      <!-- Page 2 Third Row: ESP32 Serial Port Raw Stream (c8) + Download & Export Box (c4) -->
+      <section class="card ch c8">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <h2 style="margin:0">GSU ESP32 serial port raw data dump</h2>
+          <div style="display:flex;gap:8px;align-items:center;font-size:11px;color:var(--m-mut)">
+            <span>Baud: 115200</span>
+            <button type="button" id="mClearSerialBtn" class="m-btn m-sup" style="padding:4px 10px;font-size:11px">CLEAR STREAM</button>
+          </div>
+        </div>
+        <div id="mortisSerialDump" style="height:145px;overflow-y:auto;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:monospace;font-size:11px;line-height:1.5;color:var(--tx)"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="mortisInjectInput" type="text" placeholder='Paste raw CSV or JSON packet from ESP32 (e.g. {"temp":26.8,"rssi":-45,"alt":12.4})' style="flex:1;background:var(--soft);border:1px solid var(--line);color:var(--tx);border-radius:6px;padding:6px 10px;color:#fff;font-family:monospace;font-size:11px" />
+          <button type="button" id="mortisInjectBtn" class="m-btn" style="background:#8e1d20;padding:6px 14px;font-size:11px">INJECT PACKET</button>
+        </div>
+      </section>
+
+      <section class="card c4" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <h2>Download telemetry data</h2>
+          <p style="font-size:12px;color:var(--m-mut);margin:0 0 10px">
+            Export recorded LoRa telemetry packets received through the GSU ESP32 serial interface.
+          </p>
+          <div class="raw" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+            <div><span>Rows buffered</span><b id="mExportRows" style="font-weight:500">12</b></div>
+            <div><span>Format</span><b style="font-weight:500">CSV / JSON</b></div>
+            <div><span>Serial baud</span><b style="font-weight:500">115200 bps</b></div>
+            <div><span>Radio link</span><b style="font-weight:500">LoRa GSU</b></div>
+          </div>
+        </div>
+        <div style="display:grid;gap:7px">
+          <button type="button" id="mDownloadCsvFileBtn" class="m-btn m-dl" style="width:100%;text-align:center">DOWNLOAD .CSV FILE</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+            <button type="button" id="mDownloadJsonFileBtn" class="m-btn m-sup" style="text-align:center">EXPORT .JSON</button>
+            <button type="button" id="mOpenSketchBtn" class="m-btn m-sup" style="text-align:center">ESP32 SKETCH</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 2 Bottom Row: Downlink Latency Chart (c6) + Battery Voltage Curve (c6) -->
+      <section class="card ch c6">
+        <h2>Downlink latency</h2>
+        <canvas id="c-m-lat" class="m-chart"></canvas>
+        <div class="val"><b id="v-m-lat">167</b><small>ms latency<br>Last updated <span class="ts"></span></small></div>
+      </section>
+
+      <section class="card ch c6">
+        <h2>Battery voltage</h2>
+        <canvas id="c-m-bat" class="m-chart"></canvas>
+        <div class="val"><b id="v-m-bat">3.96</b><small>V cell<br>Last updated <span class="ts"></span></small></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Top Mission Control Bar -->
+  <button type="button" id="legacyConnLabelBtn" hidden>CONNECT</button>
+  <header id="cyberHeader" class="hidden sticky top-0 z-30 border-b border-slate-800/90 bg-slate-950/90 backdrop-blur-md">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand & Architecture Badge (G.A.R.U.D.A. · Mission Control) -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full overflow-hidden border border-[#3a3a3f] flex items-center justify-center shrink-0">
+          <img class="logo-d" alt="G.A.R.U.D.A. logo (night mode)" src="assets/logo-dark.webp"><img class="logo-l" alt="G.A.R.U.D.A. logo (day mode)" src="assets/logo-light.webp">
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="text-lg font-bold tracking-[0.14em] text-[#d4d4d0]">G.A.R.U.D.A.</span>
+            <h1 class="text-base sm:text-lg font-medium tracking-tight text-[#dcdcd8] pl-3 border-l border-[#26262a]">Mission Control <span class="text-[#d9302b] font-mono text-xs px-2 py-0.5 rounded bg-[#1b1b1e] border border-[#5c1a1f]">CYBER GSU VIEW</span></h1>
+            <span id="connectionBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#1b1b1e] text-[#dcdcd8] border border-[#5c1a1f]">
+              <span id="connectionDot" class="w-2 h-2 rounded-full bg-[#d9302b] live-dot"></span>
+              <span id="connectionModeText">G.A.R.U.D.A. LORA STREAM</span>
+            </span>
+          </div>
+          <p class="text-xs text-[#86868b] hidden sm:block">Ground-link Automated Receiver &amp; Unified Data Analyzer · LoRa TX &#8594; GSU LoRa RX &#8594; ESP32 / ESP32-Mini &#8594; USB Serial Telemetry (1641 bps · 118 B)</p>
+        </div>
+      </div>
+
+      <!-- Serial & Simulation Controls -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-slate-900 border border-slate-700/80 rounded-lg p-1 text-xs">
+          <button id="modeSimBtn" type="button" class="px-2.5 py-1 rounded-md font-medium transition bg-cyan-600 text-white">
+            Simulator
+          </button>
+          <button id="modeSerialBtn" type="button" class="px-2.5 py-1 rounded-md font-medium transition text-slate-300 hover:text-white">
+            USB Serial (ESP32)
+          </button>
+        </div>
+
+        <label for="baudSelect" class="sr-only">Baud Rate</label>
+        <select id="baudSelect" class="bg-slate-900 border border-slate-700/80 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-mono focus:outline-none focus:border-cyan-500">
+          <option value="115200" selected>115200 baud</option>
+          <option value="57600">57600 baud</option>
+          <option value="38400">38400 baud</option>
+          <option value="9600">9600 baud</option>
+        </select>
+
+        <button id="connectSerialBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span id="connectSerialLabel">Connect my ESP32</span>
+        </button>
+
+        <button id="pauseStreamBtn" type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          <span id="pauseStreamLabel">Pause the stream</span>
+        </button>
+
+        <button id="openFirmwareModalBtn" type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-indigo-950/90 hover:bg-indigo-900/90 text-indigo-300 border border-indigo-700/70 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+          <span>ESP32 Sketch &amp; Packet Format</span>
+        </button>
+        <button id="backToMortisBtn" type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-900/90 hover:bg-rose-800 text-rose-100 border border-rose-700 transition">G.A.R.U.D.A. Overview</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main id="cyberMain" class="hidden flex-1 max-w-[1600px] w-full mx-auto px-4 py-4 space-y-4">
+
+    <!-- Toast Banner for Status / Serial Notifications -->
+    <div id="statusToast" class="hidden rounded-xl border border-cyan-500/50 bg-cyan-950/70 px-4 py-2.5 text-xs text-cyan-200 flex items-center justify-between">
+      <span id="statusToastText">Ready.</span>
+      <button id="closeToastBtn" type="button" class="text-cyan-300 hover:text-white font-bold ml-4">&times;</button>
+    </div>
+
+    <!-- Primary Top KPI Strip: Battery, Heading, Coordinates, Latency, Signal Strength, Altitude -->
+    <section aria-label="Primary Telemetry KPIs" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <!-- Battery Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">Battery</span>
+          <span id="kpiBatteryState" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60">NOMINAL</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="kpiBatteryPct" class="text-2xl font-bold text-white mono-val">3.96 V</span>
+          <span id="kpiBatteryVolt" class="text-xs text-slate-400 mono-val">73.3%</span>
+        </div>
+        <div class="mt-2 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="kpiBatteryBar" class="bg-emerald-400 h-full rounded-full transition-all duration-300" style="width: 88.4%"></div>
+        </div>
+      </div>
+
+      <!-- Heading & Compass Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">Heading</span>
+          <span id="kpiHeadingCardinal" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/60">NE</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between">
+          <span id="kpiHeadingDeg" class="text-2xl font-bold text-white mono-val">034.0°</span>
+          <!-- Mini Compass SVG -->
+          <div class="w-7 h-7 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center">
+            <svg id="miniCompassArrow" class="w-4 h-4 text-cyan-400 transition-transform duration-300" style="transform: rotate(47deg)" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L16 20L12 17L8 20L12 2Z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-slate-400 flex justify-between mono-val">
+          <span>Mag Lock: Active</span>
+          <span id="kpiYawRate">+0.4°/s</span>
+        </div>
+      </div>
+
+      <!-- Coordinates & GPS Fix Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">Coordinates</span>
+          <span id="kpiGpsFixBadge" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60">GPS FIX: 1</span>
+        </div>
+        <div class="mt-1.5 space-y-0.5 mono-val">
+          <div class="text-sm font-semibold text-white flex justify-between">
+            <span class="text-slate-400 text-xs">LAT</span>
+            <span id="kpiLat">20.59381° N</span>
+          </div>
+          <div class="text-sm font-semibold text-white flex justify-between">
+            <span class="text-slate-400 text-xs">LON</span>
+            <span id="kpiLon">78.96319° E</span>
+          </div>
+        </div>
+        <div class="mt-1.5 text-[11px] text-slate-400 flex justify-between mono-val">
+          <span>GSU Dist:</span>
+          <span id="kpiGroundDist" class="text-cyan-300">2.41 km</span>
+        </div>
+      </div>
+
+      <!-- Downlink Latency & Air Time Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">Link Latency</span>
+          <span id="kpiPacketSizeBadge" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">118 B</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="kpiLatency" class="text-2xl font-bold text-white mono-val">167 ms</span>
+          <span id="kpiAirTime" class="text-xs text-amber-300 mono-val">Airtime: 583 ms</span>
+        </div>
+        <div class="mt-2 text-[11px] text-slate-400 flex justify-between mono-val">
+          <span>Rate: <strong id="kpiDataRate" class="text-slate-200">1641 bps</strong></span>
+          <span>Pkts: <strong id="kpiPacketCount" class="text-cyan-400">0</strong></span>
+        </div>
+      </div>
+
+      <!-- LoRa Signal Strength (RSSI / SNR) Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">LoRa Signal</span>
+          <span id="kpiSignalQuality" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/60">STRONG</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="kpiRssi" class="text-2xl font-bold text-white mono-val">-48 dBm</span>
+          <span id="kpiSnr" class="text-xs text-emerald-400 mono-val">SNR +11.3 dB</span>
+        </div>
+        <div class="mt-2 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="kpiSignalBar" class="bg-cyan-400 h-full rounded-full transition-all duration-300" style="width: 78%"></div>
+        </div>
+      </div>
+
+      <!-- Altitude & Wheel Strength Card -->
+      <div class="glass-card rounded-xl p-3.5 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span class="font-medium uppercase tracking-wider">Altitude &amp; Wheel</span>
+          <span id="kpiUptimeBadge" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800/60">UP 6800 s</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="kpiAltitude" class="text-2xl font-bold text-white mono-val">6.00 m</span>
+          <span id="kpiWheelStrength" class="text-xs text-purple-300 mono-val">|B|: 42.5 µT</span>
+        </div>
+        <div class="mt-2 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="kpiWheelBar" class="bg-purple-400 h-full rounded-full transition-all duration-300" style="width: 64.2%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Middle Row: Ground-Track Map + Attitude/Sensors/Wheels Panel + Data Export & Download Panel -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+      <!-- Interactive Ground-Track & Heading Map (5 cols) -->
+      <div class="lg:col-span-5 glass-card rounded-xl p-4 flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Live CubeSat Ground-Track &amp; Heading Map
+            </h2>
+            <p class="text-xs text-slate-400">Real-time GPS coordinates, heading vector &amp; GSU LoRa line-of-sight</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="centerMapBtn" type="button" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+              Center Track
+            </button>
+            <button id="clearTrailBtn" type="button" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+              Reset Trail
+            </button>
+          </div>
+        </div>
+
+        <!-- Map Canvas Wrapper -->
+        <div class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+          <canvas id="groundTrackCanvas" class="w-full h-full block"></canvas>
+
+          <!-- Overlay Telemetry HUD on Map -->
+          <div class="absolute top-2.5 left-2.5 bg-slate-950/85 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] mono-val space-y-0.5 pointer-events-none">
+            <div class="text-[#d9302b] font-semibold">G.A.R.U.D.A. · GEN-2 POSITION</div>
+            <div>LAT: <span id="mapHudLat" class="text-white">20.59381°</span></div>
+            <div>LON: <span id="mapHudLon" class="text-white">78.96319°</span></div>
+            <div>HDG: <span id="mapHudHdg" class="text-emerald-400">34°</span> | ALT: <span id="mapHudAlt" class="text-purple-300">6.0 m</span></div>
+          </div>
+
+          <div class="absolute bottom-2.5 right-2.5 bg-slate-950/85 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] mono-val flex items-center gap-3 pointer-events-none">
+            <span class="flex items-center gap-1 text-cyan-300"><span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span> CubeSat</span>
+            <span class="flex items-center gap-1 text-amber-300"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> GSU Base</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attitude, Magnetometer, Gyroscope, Acceleration & Reaction Wheels Visualiser (4 cols) -->
+      <div class="lg:col-span-4 glass-card rounded-xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+              IMU Attitude &amp; Reaction Wheels
+            </h2>
+            <p class="text-xs text-slate-400">Magnetometer, Gyroscope, Accelerometer &amp; Wheel Torque</p>
+          </div>
+          <span id="imuStatusBadge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800/60">ADCS STABILIZED</span>
+        </div>
+
+        <!-- 3D CubeSat Orientation & Reaction Wheel Canvas + Gauges -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center my-auto">
+          <div class="relative h-44 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden">
+            <canvas id="attitudeCubeCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-1.5 left-2 right-2 flex justify-between text-[10px] mono-val text-slate-400 pointer-events-none">
+              <span>WHL: <strong id="cubeHudWheel" class="text-purple-300">2,450 RPM</strong></span>
+              <span>TEMP: <strong id="cubeHudTemp" class="text-amber-300">24.6 °C</strong></span>
+            </div>
+          </div>
+
+          <!-- 3-Axis Sensor Bars -->
+          <div class="space-y-2.5 text-xs mono-val">
+            <!-- Acceleration -->
+            <div class="p-2 rounded-lg bg-slate-900/90 border border-slate-800">
+              <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                <span class="font-semibold text-cyan-400">ACCEL (g)</span>
+                <span id="imuAccelMag">|a| = 9.82</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-center text-[11px]">
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">X:</span> <span id="imuAx" class="text-white">0.14</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Y:</span> <span id="imuAy" class="text-white">-0.08</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Z:</span> <span id="imuAz" class="text-white">9.81</span></div>
+              </div>
+            </div>
+
+            <!-- Gyroscope -->
+            <div class="p-2 rounded-lg bg-slate-900/90 border border-slate-800">
+              <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                <span class="font-semibold text-emerald-400">GYRO (°/s)</span>
+                <span id="imuGyroState">3-Axis Rate</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-center text-[11px]">
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">X:</span> <span id="imuGx" class="text-white">0.42</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Y:</span> <span id="imuGy" class="text-white">-0.19</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Z:</span> <span id="imuGz" class="text-white">0.31</span></div>
+              </div>
+            </div>
+
+            <!-- Magnetometer -->
+            <div class="p-2 rounded-lg bg-slate-900/90 border border-slate-800">
+              <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                <span class="font-semibold text-amber-400">MAG (µT)</span>
+                <span id="imuMagTotal">B = 46.8 µT</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-center text-[11px]">
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">X:</span> <span id="imuMx" class="text-white">28.4</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Y:</span> <span id="imuMy" class="text-white">30.1</span></div>
+                <div class="bg-slate-950 rounded py-1 border border-slate-800/80"><span class="text-slate-500">Z:</span> <span id="imuMz" class="text-white">-21.5</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reaction Wheel & Internal Environment Footer -->
+        <div class="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-center mono-val text-xs">
+          <div class="bg-slate-900/70 rounded-lg p-2 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Wheel Strength</div>
+            <div id="imuWheelPct" class="text-sm font-bold text-purple-300 mt-0.5">64.2%</div>
+          </div>
+          <div class="bg-slate-900/70 rounded-lg p-2 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Internal Temp</div>
+            <div id="imuTempVal" class="text-sm font-bold text-rose-300 mt-0.5">24.6 °C</div>
+          </div>
+          <div class="bg-slate-900/70 rounded-lg p-2 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Humidity</div>
+            <div id="imuHumVal" class="text-sm font-bold text-sky-300 mt-0.5">41.2 %</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Download & Telemetry Recording Box (3 cols) -->
+      <div class="lg:col-span-3 glass-card rounded-xl p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Download Telemetry Data
+            </h2>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60">LOGGING</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Every LoRa packet received by the GSU ESP32 over serial is buffered in memory with timestamps for instant export.
+          </p>
+
+          <!-- Buffer Statistics -->
+          <div class="mt-3 grid grid-cols-2 gap-2 mono-val">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+              <div class="text-[10px] text-slate-400 uppercase">Logged Packets</div>
+              <div id="exportPacketCount" class="text-lg font-bold text-white mt-0.5">0</div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+              <div class="text-[10px] text-slate-400 uppercase">Log Size</div>
+              <div id="exportBufferSize" class="text-lg font-bold text-cyan-300 mt-0.5">0.0 KB</div>
+            </div>
+          </div>
+
+          <!-- Download Action Buttons -->
+          <div class="mt-3 space-y-2">
+            <button id="downloadCsvBtn" type="button" class="w-full py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs flex items-center justify-center gap-2 transition shadow">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              <span>Download Full Telemetry (.CSV)</span>
+            </button>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button id="downloadJsonBtn" type="button" class="py-2 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 transition">
+                <span>Export .JSON</span>
+              </button>
+            <button id="downloadXlsxBtn" type="button" class="w-full py-2 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow">Export .XLSX (Excel)</button>
+              <button id="downloadRawLogBtn" type="button" class="py-2 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 transition">
+                <span>Raw Log (.TXT)</span>
+              </button>
+            </div>
+
+            <button id="clearLogBufferBtn" type="button" class="w-full py-1.5 px-2.5 rounded-lg bg-slate-900 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-slate-800 hover:border-rose-800/60 text-xs transition">
+              Clear Recorded Session Buffer
+            </button>
+          </div>
+        </div>
+
+        <!-- How to Download & Connect Mini Guide -->
+        <div class="mt-3 pt-3 border-t border-slate-800/90 text-[11px] text-slate-400 space-y-1">
+          <div class="font-semibold text-slate-200">How to capture &amp; download GSU data:</div>
+          <div>1. Plug GSU ESP32 into laptop USB &amp; click <strong class="text-cyan-300">Connect my ESP32</strong>.</div>
+          <div>2. Incoming LoRa packets auto-populate all graphs &amp; raw logs.</div>
+          <div>3. Click <strong class="text-emerald-300">Download Full Telemetry (.CSV)</strong> to save all 24 channels for Excel, MATLAB, or Python analysis.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-Time Telemetry Graphs Section -->
+    <section class="glass-card rounded-xl p-4 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+            Real-Time Telemetry Graphs (Time Domain)
+          </h2>
+          <p class="text-xs text-slate-400">Live time-series plots of Internal Temperature, Acceleration, Gyroscope/Magnetometer, Wheel Strength &amp; Altitude, and Battery &amp; LoRa Signal Strength</p>
+        </div>
+
+        <!-- Graph Layout Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+          <button type="button" data-chart-filter="all" class="chart-filter-btn px-2.5 py-1 rounded bg-cyan-600 text-white font-medium transition">All Charts</button>
+          <button type="button" data-chart-filter="temp" class="chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition">Temp &amp; Humidity</button>
+          <button type="button" data-chart-filter="accel" class="chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition">Acceleration</button>
+          <button type="button" data-chart-filter="imu" class="chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition">Gyro &amp; Mag</button>
+          <button type="button" data-chart-filter="wheelAlt" class="chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition">Wheel &amp; Altitude</button>
+          <button type="button" data-chart-filter="powerSignal" class="chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition">Battery &amp; Signal</button>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div id="chartsGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+        <!-- Chart 1: Time vs Internal Temperature & Humidity -->
+        <div id="chartCardTemp" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Inside Temperature &amp; Humidity</h3>
+              <p class="text-[11px] text-slate-400">CubeSat internal payload bay thermal sensor</p>
+            </div>
+            <span id="chartBadgeTemp" class="mono-val text-xs font-semibold text-rose-400">24.6 °C | 41.2%</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="tempChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Time vs 3-Axis Acceleration & Temp Overlay -->
+        <div id="chartCardAccel" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Acceleration (X, Y, Z)</h3>
+              <p class="text-[11px] text-slate-400">3-axis linear acceleration (m/s²)</p>
+            </div>
+            <span id="chartBadgeAccel" class="mono-val text-xs font-semibold text-cyan-400">Z: 9.81 m/s²</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="accelChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Time vs Battery & LoRa Signal Strength (RSSI / SNR) -->
+        <div id="chartCardPowerSignal" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Battery &amp; Signal Strength</h3>
+              <p class="text-[11px] text-slate-400">Battery (%) &amp; LoRa RSSI (dBm) / SNR (dB)</p>
+            </div>
+            <span id="chartBadgePowerSignal" class="mono-val text-xs font-semibold text-emerald-400">88.4% | -74 dBm</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="powerSignalChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 4: Time vs Reaction Wheel Strength & Altitude -->
+        <div id="chartCardWheelAlt" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Wheel Strength &amp; Altitude</h3>
+              <p class="text-[11px] text-slate-400">Reaction wheel effort (%) &amp; Barometric/GPS Altitude (m)</p>
+            </div>
+            <span id="chartBadgeWheelAlt" class="mono-val text-xs font-semibold text-purple-400">64.2% | 1420 m</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="wheelAltChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 5: Time vs Gyroscope (X, Y, Z) -->
+        <div id="chartCardGyro" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Gyroscope (X, Y, Z)</h3>
+              <p class="text-[11px] text-slate-400">Angular velocity rates (°/s)</p>
+            </div>
+            <span id="chartBadgeGyro" class="mono-val text-xs font-semibold text-emerald-400">Gx 0.4°/s</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="gyroChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 6: Time vs Magnetometer (X, Y, Z) -->
+        <div id="chartCardMag" class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wide">Time vs. Magnetometer (X, Y, Z)</h3>
+              <p class="text-[11px] text-slate-400">Magnetic flux density (µT)</p>
+            </div>
+            <span id="chartBadgeMag" class="mono-val text-xs font-semibold text-amber-400">46.8 µT</span>
+          </div>
+          <div class="relative h-56">
+            <canvas id="magChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Bottom Section: Inside Raw Data Telemetry Matrix (All 24+ Parameters) + Raw Serial Stream Dump -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+      <!-- Complete Raw Telemetry Parameter Grid (7 cols) -->
+      <div class="lg:col-span-7 glass-card rounded-xl p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Complete Raw Telemetry Channels (Unpacked Frame)
+            </h2>
+            <p class="text-xs text-slate-400">All 24 decoded CubeSat parameters from the latest GSU LoRa packet</p>
+          </div>
+          <span id="lastPacketTimestamp" class="text-xs mono-val text-slate-400">Last RX: --:--:--</span>
+        </div>
+
+        <!-- 24-Parameter Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mono-val text-xs">
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Temperature</div>
+            <div id="rawTemp" class="text-sm font-bold text-rose-300 mt-0.5">24.60 °C</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Humidity</div>
+            <div id="rawHumidity" class="text-sm font-bold text-sky-300 mt-0.5">41.20 %</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Acceleration X</div>
+            <div id="rawAccelX" class="text-sm font-bold text-cyan-300 mt-0.5">0.14 m/s²</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Acceleration Y</div>
+            <div id="rawAccelY" class="text-sm font-bold text-cyan-300 mt-0.5">-0.08 m/s²</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Acceleration Z</div>
+            <div id="rawAccelZ" class="text-sm font-bold text-cyan-300 mt-0.5">9.81 m/s²</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Gyro X</div>
+            <div id="rawGyroX" class="text-sm font-bold text-emerald-300 mt-0.5">0.42 °/s</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Gyro Y</div>
+            <div id="rawGyroY" class="text-sm font-bold text-emerald-300 mt-0.5">-0.19 °/s</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Gyro Z</div>
+            <div id="rawGyroZ" class="text-sm font-bold text-emerald-300 mt-0.5">0.31 °/s</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Mag X</div>
+            <div id="rawMagX" class="text-sm font-bold text-amber-300 mt-0.5">28.4 µT</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Mag Y</div>
+            <div id="rawMagY" class="text-sm font-bold text-amber-300 mt-0.5">30.1 µT</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Mag Z</div>
+            <div id="rawMagZ" class="text-sm font-bold text-amber-300 mt-0.5">-21.5 µT</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Heading</div>
+            <div id="rawHeading" class="text-sm font-bold text-white mt-0.5">47.2 °</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Altitude</div>
+            <div id="rawAltitude" class="text-sm font-bold text-purple-300 mt-0.5">1420.0 m</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Latitude</div>
+            <div id="rawLatitude" class="text-sm font-bold text-white mt-0.5">31.3260 °</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Longitude</div>
+            <div id="rawLongitude" class="text-sm font-bold text-white mt-0.5">75.5762 °</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">GPS Fix</div>
+            <div id="rawGpsFix" class="text-sm font-bold text-emerald-400 mt-0.5">3D FIX (9)</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Up Time</div>
+            <div id="rawUptime" class="text-sm font-bold text-white mt-0.5">862 s</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Air Time (ToA)</div>
+            <div id="rawAirTime" class="text-sm font-bold text-amber-300 mt-0.5">61.8 ms</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Data Rate</div>
+            <div id="rawDataRate" class="text-sm font-bold text-cyan-300 mt-0.5">5.47 kbps</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">RSSI</div>
+            <div id="rawRssi" class="text-sm font-bold text-cyan-300 mt-0.5">-74 dBm</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">SNR</div>
+            <div id="rawSnr" class="text-sm font-bold text-emerald-300 mt-0.5">+9.2 dB</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Latency</div>
+            <div id="rawLatency" class="text-sm font-bold text-white mt-0.5">42 ms</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Packet Size</div>
+            <div id="rawPacketSize" class="text-sm font-bold text-white mt-0.5">96 Bytes</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase">Wheel Strength</div>
+            <div id="rawWheelStrength" class="text-sm font-bold text-purple-300 mt-0.5">64.2 %</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Serial Port Dump Console & Custom Packet Injector (5 cols) -->
+      <div class="lg:col-span-5 glass-card rounded-xl p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                ESP32 Serial Port Raw Data Dump
+              </h2>
+              <p class="text-xs text-slate-400">Live incoming serial stream (auto-detects JSON or CSV lines)</p>
+            </div>
+            <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+              <input id="autoScrollCheck" type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0" />
+              <span>Auto-scroll</span>
+            </label>
+          </div>
+
+          <!-- Terminal Stream Output -->
+          <div id="serialConsoleBox" class="h-64 rounded-xl bg-slate-950 border border-slate-800 p-3 font-mono text-[11px] leading-relaxed overflow-y-auto space-y-1 text-slate-300">
+          </div>
+        </div>
+
+        <!-- Test Serial Packet Injector -->
+        <div class="mt-3 pt-3 border-t border-slate-800">
+          <label for="manualSerialInput" class="block text-[11px] font-medium text-slate-400 mb-1">
+            Simulate / Inject Raw Serial Line (CSV or JSON from ESP32):
+          </label>
+          <div class="flex gap-2">
+            <input
+              id="manualSerialInput"
+              type="text"
+              placeholder='{"temp":26.4,"humidity":39.5,"ax":0.12,"ay":-0.04,"az":9.80,"rssi":-68}'
+              class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+            />
+            <button id="injectSerialBtn" type="button" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs transition">
+              Inject Packet
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+  <!-- Modular Code Segments Explorer & Downloader Modal -->
+  
+
+  <!-- ESP32 LoRa GSU Firmware & Packet Schema Modal -->
+  <div id="firmwareModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-3xl w-full rounded-2xl border border-slate-700 p-5 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div>
+          <h3 class="text-base font-bold text-white">ESP32 / ESP32-Mini GSU LoRa Receiver Sketch &amp; Serial Protocol</h3>
+          <p class="text-xs text-slate-400">Flash this onto your GSU ESP32 so it forwards LoRa packets directly to this website over USB Serial</p>
+        </div>
+        <button id="closeFirmwareModalBtn" type="button" class="text-slate-400 hover:text-white text-xl font-bold px-2">&times;</button>
+      </div>
+
+      <div class="overflow-y-auto my-3 space-y-3 text-xs text-slate-300 pr-1">
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="font-semibold text-cyan-300">Supported Serial Line Formats (115200 baud default, newline `\n` terminated):</div>
+          <p class="text-slate-400">This web dashboard automatically parses either <strong>JSON objects</strong> or <strong>24-column CSV lines</strong> printed via <code class="text-amber-300">Serial.println()</code> from your ESP32:</p>
+          <div class="font-mono text-[11px] bg-slate-950 p-2 rounded border border-slate-800 text-emerald-300 overflow-x-auto">
+            CSV Order: temp,humidity,ax,ay,az,gx,gy,gz,mx,my,mz,heading,altitude,lat,lon,gps_fix,uptime,air_time,data_rate,rssi,snr,latency,packet_size,battery,wheel_strength
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold text-white">Arduino / ESP32 GSU Receiver Code (SX1276 / SX1278 / RA-02 LoRa):</span>
+            <button id="copyFirmwareBtn" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-[11px] font-medium">
+              Copy ESP32 Code
+            </button>
+          </div>
+          <pre id="firmwareCodeBlock" class="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] text-slate-200 overflow-x-auto leading-relaxed">#include &lt;SPI.h&gt;
+#include &lt;LoRa.h&gt;
+
+// ESP32 / ESP32-Mini LoRa Pin Definitions (Adjust for your wiring)
+#define LORA_SCK   18
+#define LORA_MISO  19
+#define LORA_MOSI  23
+#define LORA_SS    5
+#define LORA_RST   14
+#define LORA_DIO0  2
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+
+  // Use 433E6, 868E6, or 915E6 depending on your region
+  if (!LoRa.begin(433E6)) {
+    Serial.println("{\"error\":\"LoRa init failed\"}");
+    while (1);
+  }
+  LoRa.setSpreadingFactor(7);
+  LoRa.setSignalBandwidth(125E3);
+}
+
+void loop() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    String rxPayload = "";
+    while (LoRa.available()) {
+      rxPayload += (char)LoRa.read();
+    }
+    int rssi = LoRa.packetRssi();
+    float snr = LoRa.packetSnr();
+
+    // If CubeSat sends CSV payload: temp,hum,ax,ay,az,gx,gy,gz,mx,my,mz,hdg,alt,lat,lon,fix,up,toa,dr,lat_ms,batt,wheel
+    // Append GSU measured RSSI, SNR, and Packet Size or forward JSON directly to browser:
+    Serial.print(rxPayload);
+    Serial.print(",");
+    Serial.print(rssi);
+    Serial.print(",");
+    Serial.print(snr, 1);
+    Serial.print(",");
+    Serial.println(packetSize);
+  }
+}</pre>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button id="closeFirmwareModalFooterBtn" type="button" class="px-4 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CubeSat GSU Telemetry State & Buffer
+
+    // =========================================================================
+    const MAX_CHART_POINTS = 35;
+    const GSU_BASE_COORDS = { lat: 20.59350, lon: 78.96280 }; // G.A.R.U.D.A. GSU Ground Station reference coordinates
+
+    const state = {
+      mode: 'sim', // 'sim' | 'serial'
+      paused: false,
+      serialConnected: false,
+      port: null,
+      reader: null,
+      keepReading: false,
+      packetCount: 0,
+      simTick: 0,
+      startTimeMs: Date.now(),
+      telemetryLog: [],
+      rawSerialLines: [],
+      groundTrack: [],
+      centerMapOnSat: true,
+      current: {
+        timestamp: '',
+        temp: 26.2,
+        humidity: 63.9,
+        ax: -0.01,
+        ay: -0.04,
+        az: 0.57,
+        gx: 3.25,
+        gy: -18.90,
+        gz: 14.47,
+        mx: 33.0,
+        my: 22.0,
+        mz: 15.3,
+        heading: 34.0,
+        altitude: 6.0,
+        lat: 20.59381,
+        lon: 78.96319,
+        gps_fix: '1',
+        uptime: 6800,
+        air_time: 583.0,
+        data_rate: 1641,
+        rssi: -48,
+        snr: 11.3,
+        latency: 167,
+        packet_size: 118,
+        battery: 73.3,
+        battery_v: 3.96,
+        wheel_strength: 42.5,
+        wheel_rpm: 2450
+      }
+    };
+
+    // =========================================================================
+    // Helper Utilities
+    // =========================================================================
+    function showToast(msg) {
+      const toast = document.getElementById('statusToast');
+      const text = document.getElementById('statusToastText');
+      text.textContent = msg;
+      toast.classList.remove('hidden');
+    }
+
+    function degToCardinal(deg) {
+      const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+      const ix = Math.round(((deg %= 360) < 0 ? deg + 360 : deg) / 45) % 8;
+      return dirs[ix];
+    }
+
+    function formatUptime(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      const secs = String(s % 60).padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const toRad = d => (d * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // =========================================================================
+    // Chart.js Initialization (6 Real-Time Time-Series Graphs)
+    // =========================================================================
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.font.size = 10;
+
+    // One shared look and feel for all six Chart.js graphs, so they feel like a family.
+    function baseChartOptions(yLeftTitle, yRightTitle = null) {
+      const scales = {
+        x: {
+          grid: { color: 'rgba(51, 65, 85, 0.25)' },
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }
+        },
+        y: {
+          type: 'linear',
+          position: 'left',
+          grid: { color: 'rgba(51, 65, 85, 0.25)' },
+          title: { display: Boolean(yLeftTitle), text: yLeftTitle, color: '#94a3b8' }
+        }
+      };
+      if (yRightTitle) {
+        scales.y1 = {
+          type: 'linear',
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: yRightTitle, color: '#94a3b8' }
+        };
+      }
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 10 }
+          }
+        },
+        scales
+      };
+    }
+
+    const tempChart = new Chart(document.getElementById('tempChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Inside Temp (°C)',
+            data: [],
+            borderColor: '#d9302b',
+            backgroundColor: 'rgba(217, 48, 43, 0.16)',
+            borderWidth: 2,
+            pointRadius: 1.5,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Humidity (%)',
+            data: [],
+            borderColor: '#c4c4c0',
+            borderWidth: 1.8,
+            borderDash: [4, 3],
+            pointRadius: 1.5,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: baseChartOptions('Temp (°C)', 'Humidity (%)')
+    });
+
+    const accelChart = new Chart(document.getElementById('accelChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Accel X', data: [], borderColor: '#d9302b', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Accel Y', data: [], borderColor: '#c4c4c0', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Accel Z', data: [], borderColor: '#7a8594', borderWidth: 1.8, pointRadius: 1, tension: 0.25 }
+        ]
+      },
+      options: baseChartOptions('m/s²')
+    });
+
+    const powerSignalChart = new Chart(document.getElementById('powerSignalChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Battery (%)',
+            data: [],
+            borderColor: '#d9302b',
+            backgroundColor: 'rgba(217, 48, 43, 0.12)',
+            borderWidth: 2,
+            pointRadius: 1.5,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'RSSI (dBm)',
+            data: [],
+            borderColor: '#c4c4c0',
+            borderWidth: 1.8,
+            pointRadius: 1.5,
+            tension: 0.3,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'SNR (dB)',
+            data: [],
+            borderColor: '#7a8594',
+            borderWidth: 1.5,
+            borderDash: [3, 3],
+            pointRadius: 1,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: baseChartOptions('Battery (%)', 'dBm / dB')
+    });
+
+    const wheelAltChart = new Chart(document.getElementById('wheelAltChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Wheel Strength (%)',
+            data: [],
+            borderColor: '#d9302b',
+            backgroundColor: 'rgba(217, 48, 43, 0.14)',
+            borderWidth: 2,
+            pointRadius: 1.5,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Altitude (m)',
+            data: [],
+            borderColor: '#c4c4c0',
+            borderWidth: 2,
+            pointRadius: 1.5,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: baseChartOptions('Wheel (%)', 'Altitude (m)')
+    });
+
+    const gyroChart = new Chart(document.getElementById('gyroChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Gyro X', data: [], borderColor: '#d9302b', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Gyro Y', data: [], borderColor: '#c4c4c0', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Gyro Z', data: [], borderColor: '#7a8594', borderWidth: 1.8, pointRadius: 1, tension: 0.25 }
+        ]
+      },
+      options: baseChartOptions('°/s')
+    });
+
+    const magChart = new Chart(document.getElementById('magChart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Mag X', data: [], borderColor: '#7a8594', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Mag Y', data: [], borderColor: '#c4c4c0', borderWidth: 1.8, pointRadius: 1, tension: 0.25 },
+          { label: 'Mag Z', data: [], borderColor: '#7a8594', borderWidth: 1.8, pointRadius: 1, tension: 0.25 }
+        ]
+      },
+      options: baseChartOptions('µT')
+    });
+
+    // Add the newest reading to a graph and let the oldest slide off the edge, so you always see the most recent stretch of the flight.
+    function pushChartData(pkt) {
+      const label = pkt.timestamp;
+      const allCharts = [tempChart, accelChart, powerSignalChart, wheelAltChart, gyroChart, magChart];
+
+      allCharts.forEach(ch => {
+        ch.data.labels.push(label);
+        if (ch.data.labels.length > MAX_CHART_POINTS) {
+          ch.data.labels.shift();
+        }
+      });
+
+      const pushSeries = (chart, values) => {
+        values.forEach((val, idx) => {
+          chart.data.datasets[idx].data.push(val);
+          if (chart.data.datasets[idx].data.length > MAX_CHART_POINTS) {
+            chart.data.datasets[idx].data.shift();
+          }
+        });
+        chart.update('none');
+      };
+
+      pushSeries(tempChart, [pkt.temp, pkt.humidity]);
+      pushSeries(accelChart, [pkt.ax, pkt.ay, pkt.az]);
+      pushSeries(powerSignalChart, [pkt.battery, pkt.rssi, pkt.snr]);
+      pushSeries(wheelAltChart, [pkt.wheel_strength, pkt.altitude]);
+      pushSeries(gyroChart, [pkt.gx, pkt.gy, pkt.gz]);
+      pushSeries(magChart, [pkt.mx, pkt.my, pkt.mz]);
+    }
+
+    // =========================================================================
+    // Interactive Ground-Track Radar/Map Canvas
+    // =========================================================================
+    const mapCanvas = document.getElementById('groundTrackCanvas');
+    const mapCtx = mapCanvas.getContext('2d');
+
+    function resizeCanvasToDisplaySize(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const rw = Math.max(300, Math.floor(rect.width * dpr));
+      const rh = Math.max(180, Math.floor(rect.height * dpr));
+      if (canvas.width !== rw || canvas.height !== rh) {
+        canvas.width = rw;
+        canvas.height = rh;
+      }
+      return { width: canvas.width, height: canvas.height, dpr };
+    }
+
+    // A hand-drawn map on a <canvas>: no map tiles and no internet needed. Your GPS trail glows behind the satellite so you can see where it has been.
+    function drawGroundTrackMap() {
+      const { width, height, dpr } = resizeCanvasToDisplaySize(mapCanvas);
+      const ctx = mapCtx;
+      ctx.save();
+      ctx.clearRect(0, 0, width, height);
+
+      // Dark radar map background
+      const grad = ctx.createRadialGradient(width / 2, height / 2, 10, width / 2, height / 2, Math.max(width, height) * 0.7);
+      grad.addColorStop(0, '#161618');
+      grad.addColorStop(1, '#070708');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Coordinate projection center
+      const cur = state.current;
+      const centerLat = state.centerMapOnSat ? cur.lat : GSU_BASE_COORDS.lat;
+      const centerLon = state.centerMapOnSat ? cur.lon : GSU_BASE_COORDS.lon;
+      const scale = 26000 * dpr; // pixels per degree
+
+      const toXY = (lat, lon) => ({
+        x: width / 2 + (lon - centerLon) * scale,
+        y: height / 2 - (lat - centerLat) * scale
+      });
+
+      // Draw lat/lon tactical grid lines
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.35)';
+      ctx.lineWidth = 1 * dpr;
+      const stepPx = 48 * dpr;
+      for (let x = (width / 2) % stepPx; x < width; x += stepPx) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = (height / 2) % stepPx; y < height; y += stepPx) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw range rings around GSU Base
+      const gsuPt = toXY(GSU_BASE_COORDS.lat, GSU_BASE_COORDS.lon);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.2)';
+      ctx.setLineDash([4 * dpr, 4 * dpr]);
+      [60 * dpr, 120 * dpr, 180 * dpr].forEach(r => {
+        ctx.beginPath();
+        ctx.arc(gsuPt.x, gsuPt.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+
+      // Draw LoRa link line between GSU and CubeSat
+      const satPt = toXY(cur.lat, cur.lon);
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.setLineDash([6 * dpr, 4 * dpr]);
+      ctx.beginPath();
+      ctx.moveTo(gsuPt.x, gsuPt.y);
+      ctx.lineTo(satPt.x, satPt.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw historical ground-track trail
+      if (state.groundTrack.length > 1) {
+        ctx.strokeStyle = '#d9302b';
+        ctx.lineWidth = 2 * dpr;
+        ctx.beginPath();
+        state.groundTrack.forEach((pt, idx) => {
+          const p = toXY(pt.lat, pt.lon);
+          if (idx === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.stroke();
+      }
+
+      // Draw GSU Base Station marker
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(gsuPt.x, gsuPt.y, 5 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = `${10 * dpr}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#fde68a';
+      ctx.fillText('GSU RX', gsuPt.x + 8 * dpr, gsuPt.y + 4 * dpr);
+
+      // Draw CubeSat Position & Heading Vector Arrow
+      ctx.save();
+      ctx.translate(satPt.x, satPt.y);
+      ctx.rotate((cur.heading * Math.PI) / 180);
+
+      // Pulse halo
+      ctx.fillStyle = 'rgba(217, 48, 43, 0.25)';
+      ctx.beginPath();
+      ctx.arc(0, 0, 14 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Heading directional arrow
+      ctx.fillStyle = '#d9302b';
+      ctx.beginPath();
+      ctx.moveTo(0, -11 * dpr);
+      ctx.lineTo(7 * dpr, 8 * dpr);
+      ctx.lineTo(0, 4 * dpr);
+      ctx.lineTo(-7 * dpr, 8 * dpr);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 3D Attitude & Reaction Wheel Visualizer Canvas
+    // =========================================================================
+    const cubeCanvas = document.getElementById('attitudeCubeCanvas');
+    const cubeCtx = cubeCanvas.getContext('2d');
+    let wheelAngle = 0;
+
+    // The spinning 3D CubeSat! We turn the gyro, accel and heading numbers into rotations with a bit of trigonometry, no heavy 3D library required.
+    function drawAttitudeCube() {
+      const { width, height, dpr } = resizeCanvasToDisplaySize(cubeCanvas);
+      const ctx = cubeCtx;
+      ctx.save();
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2 - 6 * dpr;
+      const cur = state.current;
+
+      // Derive pitch/roll/yaw from accelerometer & heading
+      const pitch = Math.atan2(cur.ay, cur.az);
+      const roll = Math.atan2(-cur.ax, Math.sqrt(cur.ay * cur.ay + cur.az * cur.az));
+      const yaw = (cur.heading * Math.PI) / 180;
+
+      // 1U CubeSat vertices
+      const sz = Math.min(width, height) * 0.24;
+      const verts = [
+        [-1, -1.2, -1], [1, -1.2, -1], [1, 1.2, -1], [-1, 1.2, -1],
+        [-1, -1.2,  1], [1, -1.2,  1], [1, 1.2,  1], [-1, 1.2,  1]
+      ];
+
+      const rotate = ([x, y, z]) => {
+        // Roll (Z), Pitch (X), Yaw (Y)
+        let x1 = x * Math.cos(roll) - y * Math.sin(roll);
+        let y1 = x * Math.sin(roll) + y * Math.cos(roll);
+        let z1 = z;
+
+        let y2 = y1 * Math.cos(pitch) - z1 * Math.sin(pitch);
+        let z2 = y1 * Math.sin(pitch) + z1 * Math.cos(pitch);
+        let x2 = x1;
+
+        let x3 = x2 * Math.cos(yaw) + z2 * Math.sin(yaw);
+        let z3 = -x2 * Math.sin(yaw) + z2 * Math.cos(yaw);
+        let y3 = y2;
+
+        const fov = 4.5 / (4.5 + z3 * 0.45);
+        return { x: cx + x3 * sz * fov, y: cy + y3 * sz * fov };
+      };
+
+      const projected = verts.map(rotate);
+      const edges = [
+        [0,1],[1,2],[2,3],[3,0],
+        [4,5],[5,6],[6,7],[7,4],
+        [0,4],[1,5],[2,6],[3,7]
+      ];
+
+      // Draw solar panel wings
+      ctx.strokeStyle = '#c4c4c0';
+      ctx.lineWidth = 1.8 * dpr;
+      edges.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(projected[a].x, projected[a].y);
+        ctx.lineTo(projected[b].x, projected[b].y);
+        ctx.stroke();
+      });
+
+      // Draw spinning internal reaction wheel ring
+      wheelAngle += (cur.wheel_strength / 100) * 0.25;
+      const wheelRadius = sz * 0.55;
+      ctx.strokeStyle = '#d9302b';
+      ctx.lineWidth = 2.2 * dpr;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, wheelRadius, wheelRadius * 0.45, wheelAngle, 0, Math.PI * 1.65);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // Telemetry Update & DOM Synchronizer
+    // =========================================================================
+    function appendSerialConsole(rawText) {
+      state.rawSerialLines.push(rawText);
+      if (state.rawSerialLines.length > 500) {
+        state.rawSerialLines.shift();
+      }
+      const box = document.getElementById('serialConsoleBox');
+      const lineEl = document.createElement('div');
+      lineEl.className = 'border-b border-slate-900 pb-0.5 break-all';
+      lineEl.innerHTML = `<span class="text-slate-500">[${state.current.timestamp}]</span> <span class="text-cyan-300">${rawText.replace(/</g, '&lt;')}</span>`;
+      box.appendChild(lineEl);
+      while (box.children.length > 80) {
+        box.removeChild(box.firstChild);
+      }
+      if (document.getElementById('autoScrollCheck').checked) {
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+
+    function updateDashboardUI() {
+      const c = state.current;
+      const distKm = haversineKm(GSU_BASE_COORDS.lat, GSU_BASE_COORDS.lon, c.lat, c.lon);
+
+      // Top KPIs
+      document.getElementById('kpiBatteryPct').textContent = `${c.battery_v.toFixed(2)} V`;
+      document.getElementById('kpiBatteryVolt').textContent = `${c.battery.toFixed(1)}%`;
+      document.getElementById('kpiBatteryBar').style.width = `${Math.min(100, Math.max(0, c.battery))}%`;
+
+      const cardinal = degToCardinal(c.heading);
+      document.getElementById('kpiHeadingCardinal').textContent = cardinal;
+      document.getElementById('kpiHeadingDeg').textContent = `${c.heading.toFixed(1).padStart(5, '0')}°`;
+      document.getElementById('miniCompassArrow').style.transform = `rotate(${c.heading}deg)`;
+      document.getElementById('kpiYawRate').textContent = `${c.gz >= 0 ? '+' : ''}${c.gz.toFixed(2)}°/s`;
+
+      document.getElementById('kpiGpsFixBadge').textContent = c.gps_fix;
+      document.getElementById('kpiLat').textContent = `${c.lat.toFixed(5)}° N`;
+      document.getElementById('kpiLon').textContent = `${c.lon.toFixed(5)}° E`;
+      document.getElementById('kpiGroundDist').textContent = `${distKm.toFixed(2)} km`;
+
+      document.getElementById('kpiPacketSizeBadge').textContent = `${c.packet_size} B`;
+      document.getElementById('kpiLatency').textContent = `${Math.round(c.latency)} ms`;
+      document.getElementById('kpiAirTime').textContent = `Airtime: ${Math.round(c.air_time)} ms`;
+      document.getElementById('kpiDataRate').textContent = `${Math.round(c.data_rate)} bps`;
+      document.getElementById('kpiPacketCount').textContent = String(state.packetCount);
+
+      document.getElementById('kpiRssi').textContent = `${Math.round(c.rssi)} dBm`;
+      document.getElementById('kpiSnr').textContent = `SNR ${c.snr >= 0 ? '+' : ''}${c.snr.toFixed(1)} dB`;
+      const sigPct = Math.min(100, Math.max(5, ((c.rssi + 120) / 70) * 100));
+      document.getElementById('kpiSignalBar').style.width = `${sigPct}%`;
+      document.getElementById('kpiSignalQuality').textContent = c.rssi > -80 ? 'STRONG' : c.rssi > -98 ? 'MODERATE' : 'WEAK';
+
+      document.getElementById('kpiUptimeBadge').textContent = `UP ${Math.round(c.uptime)} s`;
+      document.getElementById('kpiAltitude').textContent = `${c.altitude.toFixed(2)} m`;
+      document.getElementById('kpiWheelStrength').textContent = `|B|: ${c.wheel_strength.toFixed(2)} µT`;
+      document.getElementById('kpiWheelBar').style.width = `${Math.min(100, Math.max(0, c.wheel_strength))}%`;
+
+      // Map HUD
+      document.getElementById('mapHudLat').textContent = `${c.lat.toFixed(4)}°`;
+      document.getElementById('mapHudLon').textContent = `${c.lon.toFixed(4)}°`;
+      document.getElementById('mapHudHdg').textContent = `${c.heading.toFixed(1)}°`;
+      document.getElementById('mapHudAlt').textContent = `${c.altitude.toFixed(0)} m`;
+
+      // Attitude & IMU Box
+      const accelMag = Math.sqrt(c.ax * c.ax + c.ay * c.ay + c.az * c.az);
+      const magTotal = Math.sqrt(c.mx * c.mx + c.my * c.my + c.mz * c.mz);
+      document.getElementById('imuAccelMag').textContent = `|a| = ${accelMag.toFixed(2)}`;
+      document.getElementById('imuAx').textContent = c.ax.toFixed(2);
+      document.getElementById('imuAy').textContent = c.ay.toFixed(2);
+      document.getElementById('imuAz').textContent = c.az.toFixed(2);
+
+      document.getElementById('imuGx').textContent = c.gx.toFixed(2);
+      document.getElementById('imuGy').textContent = c.gy.toFixed(2);
+      document.getElementById('imuGz').textContent = c.gz.toFixed(2);
+
+      document.getElementById('imuMagTotal').textContent = `B = ${magTotal.toFixed(1)} µT`;
+      document.getElementById('imuMx').textContent = c.mx.toFixed(1);
+      document.getElementById('imuMy').textContent = c.my.toFixed(1);
+      document.getElementById('imuMz').textContent = c.mz.toFixed(1);
+
+      document.getElementById('cubeHudWheel').textContent = `${Math.round(c.wheel_rpm)} RPM`;
+      document.getElementById('cubeHudTemp').textContent = `${c.temp.toFixed(1)} °C`;
+      document.getElementById('imuWheelPct').textContent = `${c.wheel_strength.toFixed(1)}%`;
+      document.getElementById('imuTempVal').textContent = `${c.temp.toFixed(1)} °C`;
+      document.getElementById('imuHumVal').textContent = `${c.humidity.toFixed(1)} %`;
+
+      // Chart Header Badges
+      document.getElementById('chartBadgeTemp').textContent = `${c.temp.toFixed(1)} °C | ${c.humidity.toFixed(1)}%`;
+      document.getElementById('chartBadgeAccel').textContent = `Z: ${c.az.toFixed(2)} m/s²`;
+      document.getElementById('chartBadgePowerSignal').textContent = `${c.battery.toFixed(1)}% | ${Math.round(c.rssi)} dBm`;
+      document.getElementById('chartBadgeWheelAlt').textContent = `${c.wheel_strength.toFixed(1)}% | ${c.altitude.toFixed(0)} m`;
+      document.getElementById('chartBadgeGyro').textContent = `Gz ${c.gz.toFixed(2)} °/s`;
+      document.getElementById('chartBadgeMag').textContent = `${magTotal.toFixed(1)} µT`;
+
+      // Raw 24-Channel Grid
+      document.getElementById('lastPacketTimestamp').textContent = `Last RX: ${c.timestamp}`;
+      document.getElementById('rawTemp').textContent = `${c.temp.toFixed(2)} °C`;
+      document.getElementById('rawHumidity').textContent = `${c.humidity.toFixed(2)} %`;
+      document.getElementById('rawAccelX').textContent = `${c.ax.toFixed(2)} g`;
+      document.getElementById('rawAccelY').textContent = `${c.ay.toFixed(2)} g`;
+      document.getElementById('rawAccelZ').textContent = `${c.az.toFixed(2)} g`;
+      document.getElementById('rawGyroX').textContent = `${c.gx.toFixed(2)} °/s`;
+      document.getElementById('rawGyroY').textContent = `${c.gy.toFixed(2)} °/s`;
+      document.getElementById('rawGyroZ').textContent = `${c.gz.toFixed(2)} °/s`;
+      document.getElementById('rawMagX').textContent = `${c.mx.toFixed(1)} µT`;
+      document.getElementById('rawMagY').textContent = `${c.my.toFixed(1)} µT`;
+      document.getElementById('rawMagZ').textContent = `${c.mz.toFixed(1)} µT`;
+      document.getElementById('rawHeading').textContent = `${c.heading.toFixed(1)} °`;
+      document.getElementById('rawAltitude').textContent = `${c.altitude.toFixed(2)} m`;
+      document.getElementById('rawLatitude').textContent = `${c.lat.toFixed(5)} °`;
+      document.getElementById('rawLongitude').textContent = `${c.lon.toFixed(5)} °`;
+      document.getElementById('rawGpsFix').textContent = c.gps_fix;
+      document.getElementById('rawUptime').textContent = `${Math.round(c.uptime)} s`;
+      document.getElementById('rawAirTime').textContent = `${c.air_time.toFixed(1)} ms`;
+      document.getElementById('rawDataRate').textContent = `${Math.round(c.data_rate)} bps`;
+      document.getElementById('rawRssi').textContent = `${Math.round(c.rssi)} dBm`;
+      document.getElementById('rawSnr').textContent = `${c.snr >= 0 ? '+' : ''}${c.snr.toFixed(1)} dB`;
+      document.getElementById('rawLatency').textContent = `${Math.round(c.latency)} ms`;
+      document.getElementById('rawPacketSize').textContent = `${c.packet_size} Bytes`;
+      document.getElementById('rawWheelStrength').textContent = `${c.wheel_strength.toFixed(1)} %`;
+
+      // Export Counter & Log Size
+      document.getElementById('exportPacketCount').textContent = String(state.telemetryLog.length);
+      const approxBytes = state.telemetryLog.length * 165;
+      document.getElementById('exportBufferSize').textContent = `${(approxBytes / 1024).toFixed(1)} KB`;
+
+      drawGroundTrackMap();
+    }
+
+    // =========================================================================
+    // Serial Packet Parser (Supports JSON and 24-value CSV from ESP32)
+    // =========================================================================
+    // Once a packet makes sense, it lands here. We tidy it up, borrow any missing values from the last packet, and remember it for the charts and exports.
+    function ingestTelemetryPacket(partialObj, rawLineStr = null) {
+      if (state.paused) return;
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+
+      const merged = {
+        ...state.current,
+        ...partialObj,
+        timestamp: timeStr
+      };
+      if (!partialObj.battery_v) { merged.battery_v = +(3.3 + (merged.battery / 100) * 0.9).toFixed(2); }
+      merged.wheel_rpm = Math.round((merged.wheel_strength / 100) * 3800);
+
+      state.current = merged;
+      // Let the Testing Lab peek at every packet (it stays quiet unless a test is running).
+      if (window.__testPacketHook) window.__testPacketHook(merged, partialObj);
+      state.packetCount += 1;
+      state.telemetryLog.push({ ...merged, packet_id: state.packetCount });
+
+      state.groundTrack.push({ lat: merged.lat, lon: merged.lon });
+      if (state.groundTrack.length > 120) {
+        state.groundTrack.shift();
+      }
+
+      const serialString = rawLineStr || JSON.stringify({
+        id: state.packetCount,
+        temp: +merged.temp.toFixed(2),
+        hum: +merged.humidity.toFixed(1),
+        ax: +merged.ax.toFixed(2),
+        ay: +merged.ay.toFixed(2),
+        az: +merged.az.toFixed(2),
+        gx: +merged.gx.toFixed(2),
+        gy: +merged.gy.toFixed(2),
+        gz: +merged.gz.toFixed(2),
+        mx: +merged.mx.toFixed(1),
+        my: +merged.my.toFixed(1),
+        mz: +merged.mz.toFixed(1),
+        hdg: +merged.heading.toFixed(1),
+        alt: +merged.altitude.toFixed(1),
+        lat: +merged.lat.toFixed(5),
+        lon: +merged.lon.toFixed(5),
+        rssi: Math.round(merged.rssi),
+        snr: +merged.snr.toFixed(1),
+        batt: +merged.battery.toFixed(1),
+        wheel: +merged.wheel_strength.toFixed(1)
+      });
+
+      appendSerialConsole(serialString);
+      pushChartData(merged);
+      updateDashboardUI();
+    }
+
+    // Your ESP32 can speak JSON ({"temp":26.1,...}) or plain CSV. We try both, so you never have to worry about which one your sketch prints.
+    function parseIncomingSerialLine(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      // Here's a friendly middleman: the Testing Lab gets first look at each line.
+      // It keeps command replies and # notes for itself, and lets telemetry flow on as usual.
+      if (window.__testLineHook && window.__testLineHook(trimmed)) return;
+
+      // 1. Try JSON parsing
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          const mapped = {};
+          const num = (v, fallback) => (v !== undefined && !isNaN(parseFloat(v)) ? parseFloat(v) : fallback);
+          mapped.temp = num(parsed.temp ?? parsed.temperature, state.current.temp);
+          mapped.humidity = num(parsed.humidity ?? parsed.hum, state.current.humidity);
+          mapped.ax = num(parsed.ax ?? parsed.accel_x, state.current.ax);
+          mapped.ay = num(parsed.ay ?? parsed.accel_y, state.current.ay);
+          mapped.az = num(parsed.az ?? parsed.accel_z, state.current.az);
+          mapped.gx = num(parsed.gx ?? parsed.gyro_x, state.current.gx);
+          mapped.gy = num(parsed.gy ?? parsed.gyro_y, state.current.gy);
+          mapped.gz = num(parsed.gz ?? parsed.gyro_z, state.current.gz);
+          mapped.mx = num(parsed.mx ?? parsed.mag_x, state.current.mx);
+          mapped.my = num(parsed.my ?? parsed.mag_y, state.current.my);
+          mapped.mz = num(parsed.mz ?? parsed.mag_z, state.current.mz);
+          mapped.heading = num(parsed.heading ?? parsed.hdg, state.current.heading);
+          mapped.altitude = num(parsed.altitude ?? parsed.alt, state.current.altitude);
+          mapped.lat = num(parsed.lat ?? parsed.latitude, state.current.lat);
+          mapped.lon = num(parsed.lon ?? parsed.longitude, state.current.lon);
+          if (parsed.gps_fix) mapped.gps_fix = String(parsed.gps_fix);
+          mapped.uptime = num(parsed.uptime, state.current.uptime);
+          mapped.air_time = num(parsed.air_time ?? parsed.toa, state.current.air_time);
+          mapped.data_rate = num(parsed.data_rate ?? parsed.dr, state.current.data_rate);
+          mapped.rssi = num(parsed.rssi, state.current.rssi);
+          mapped.snr = num(parsed.snr, state.current.snr);
+          mapped.latency = num(parsed.latency, state.current.latency);
+          mapped.packet_size = num(parsed.packet_size ?? trimmed.length, trimmed.length);
+          // Here's a friendly detail: the sketch sends batt in volts (like 3.96), while battery can be a percentage.
+          // A value between 0 and 5 is clearly volts, so we keep the real voltage and work out the percentage from it.
+          const rawBatt = parsed.battery ?? parsed.batt;
+          if (typeof rawBatt === 'number' && rawBatt > 0 && rawBatt <= 5) {
+            mapped.battery_v = rawBatt;
+            mapped.battery = Math.max(0, Math.min(100, Math.round((rawBatt - 3.3) / 0.9 * 100)));
+          } else {
+            mapped.battery = num(rawBatt, state.current.battery);
+          }
+          mapped.wheel_strength = num(parsed.wheel_strength ?? parsed.wheel, state.current.wheel_strength);
+
+          ingestTelemetryPacket(mapped, trimmed);
+          return;
+        } catch (err) {
+          // Fall through to CSV parser if invalid JSON
+        }
+      }
+
+      // 2. Try CSV parsing
+      const parts = trimmed.split(',').map(s => s.trim());
+      if (parts.length >= 6) {
+        const n = (idx, fallback) => {
+          const val = parseFloat(parts[idx]);
+          return !isNaN(val) ? val : fallback;
+        };
+        const mapped = {
+          temp: n(0, state.current.temp),
+          humidity: n(1, state.current.humidity),
+          ax: n(2, state.current.ax),
+          ay: n(3, state.current.ay),
+          az: n(4, state.current.az),
+          gx: n(5, state.current.gx),
+          gy: n(6, state.current.gy),
+          gz: n(7, state.current.gz),
+          mx: n(8, state.current.mx),
+          my: n(9, state.current.my),
+          mz: n(10, state.current.mz),
+          heading: n(11, state.current.heading),
+          altitude: n(12, state.current.altitude),
+          lat: n(13, state.current.lat),
+          lon: n(14, state.current.lon),
+          gps_fix: parts[15] ? parts[15] : state.current.gps_fix,
+          uptime: n(16, state.current.uptime + 1),
+          air_time: n(17, state.current.air_time),
+          data_rate: n(18, state.current.data_rate),
+          rssi: n(19, state.current.rssi),
+          snr: n(20, state.current.snr),
+          latency: n(21, state.current.latency),
+          packet_size: n(22, trimmed.length),
+          battery: n(23, state.current.battery),
+          wheel_strength: n(24, state.current.wheel_strength)
+        };
+        ingestTelemetryPacket(mapped, trimmed);
+      } else {
+        appendSerialConsole(trimmed);
+      }
+    }
+
+    // =========================================================================
+    // Web Serial API Connection Manager (ESP32 / ESP32-Mini over USB)
+    // =========================================================================
+    // Here's where the magic starts: we ask the browser to open your ESP32's USB port. Chrome or Edge shows a little picker, you choose your board, and we're live!
+    async function connectWebSerial() {
+      if (!('serial' in navigator)) {
+        showToast('Hey there! To connect to the hardware you\u2019ll need a browser with Web Serial, like Chrome or Edge. Until then, practice mode has you covered.');
+        return;
+      }
+
+      if (state.serialConnected && state.port) {
+        await disconnectWebSerial();
+        return;
+      }
+
+      try {
+        const baudRate = parseInt(document.getElementById('baud').value, 10) || 115200;
+        const port = await navigator.serial.requestPort();
+        await port.open({ baudRate });
+
+        state.port = port;
+        state.serialConnected = true;
+        state.mode = 'serial';
+        state.keepReading = true;
+
+        updateConnectionStatusUI();
+        showToast(`Yay, we\u2019re connected at ${baudRate} baud! Listening for LoRa packets\u2026`);
+
+        readSerialLoop();
+      } catch (err) {
+        showToast(`Hmm, couldn\u2019t open the port (${err.message || 'try checking the USB cable'}). No harm done, just try again!`);
+      }
+    }
+
+    async function disconnectWebSerial() {
+      state.keepReading = false;
+      try {
+        if (state.reader) {
+          await state.reader.cancel();
+          state.reader = null;
+        }
+        if (state.port) {
+          await state.port.close();
+          state.port = null;
+        }
+      } catch (e) {
+        // Ignore close errors
+      }
+      state.serialConnected = false;
+      state.mode = 'sim';
+      updateConnectionStatusUI();
+      showToast('ESP32 unplugged. No worries, I\u2019ve switched back to practice mode so you can keep exploring.');
+    }
+
+    // Here's where the magic happens: reading the live LoRa packets from the USB serial port! This loop quietly listens, chops the bytes into lines, and hands each line to the parser.
+    async function readSerialLoop() {
+      let buffer = '';
+      const decoder = new TextDecoder();
+      while (state.port && state.port.readable && state.keepReading) {
+        const reader = state.port.readable.getReader();
+        state.reader = reader;
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            if (value) {
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split(/\r?\n/);
+              buffer = lines.pop() || '';
+              lines.forEach(line => parseIncomingSerialLine(line));
+            }
+          }
+        } catch (err) {
+          showToast(`The serial stream paused unexpectedly (${err.message}). Check the cable and reconnect when ready.`);
+          break;
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    }
+
+    // Keeps the status badge and buttons honest about what the ESP32 is really doing: live, practicing, or still waiting for you.
+    function updateConnectionStatusUI() {
+      if (typeof updateHeaderDotAndButtons === 'function') updateHeaderDotAndButtons();
+      const badge = document.getElementById('connectionBadge');
+      const dot = document.getElementById('connectionDot');
+      const text = document.getElementById('connectionModeText');
+      const label = document.getElementById('connectSerialLabel');
+      const simBtn = document.getElementById('modeSimBtn');
+      const serBtn = document.getElementById('modeSerialBtn');
+
+      if (state.serialConnected) {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-950/90 text-cyan-300 border border-cyan-500/60';
+        dot.className = 'w-2 h-2 rounded-full bg-cyan-400 live-dot';
+        text.textContent = 'LIVE FROM YOUR ESP32 · packets flowing!';
+        label.textContent = 'Unplug my ESP32';
+        serBtn.className = 'px-2.5 py-1 rounded-md font-medium transition bg-cyan-600 text-white';
+        simBtn.className = 'px-2.5 py-1 rounded-md font-medium transition text-slate-300 hover:text-white';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-700/60';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 live-dot';
+        text.textContent = state.mode === 'sim' ? 'PRACTICE MODE · simulated packets' : 'WAITING FOR YOUR ESP32… plug it in and let’s go!';
+        label.textContent = 'Connect my ESP32';
+        if (state.mode === 'sim') {
+          simBtn.className = 'px-2.5 py-1 rounded-md font-medium transition bg-cyan-600 text-white';
+          serBtn.className = 'px-2.5 py-1 rounded-md font-medium transition text-slate-300 hover:text-white';
+        } else {
+          serBtn.className = 'px-2.5 py-1 rounded-md font-medium transition bg-cyan-600 text-white';
+          simBtn.className = 'px-2.5 py-1 rounded-md font-medium transition text-slate-300 hover:text-white';
+        }
+      }
+    }
+
+    // =========================================================================
+    // Realistic CubeSat Telemetry Simulator Loop
+    // =========================================================================
+    // Practice mode! No hardware handy? This invents believable LoRa packets so you can explore every panel before the real thing arrives.
+    function stepSimulator() {
+      if (state.paused || state.mode !== 'sim') return;
+      state.simTick += 1;
+      const t = state.simTick;
+      const f = (p, ph = 0) => Math.sin(t / p + ph);
+      const rnd = (a = 1) => (Math.random() - 0.5) * a;
+      const c = state.current;
+
+      const mx = +(33 + 9 * f(3) + rnd(3)).toFixed(2);
+      const my = +(22 + 8 * f(4, 1) + rnd(3)).toFixed(2);
+      const mz = +(15.3 + 4 * f(5, 2) + rnd(2)).toFixed(2);
+      const gx = +(3.25 + 12 * f(4) + rnd(1)).toFixed(2);
+      const gy = +(-18.9 + 10 * f(5, 1) + rnd(1)).toFixed(2);
+      const gz = +(14.47 + 12 * f(6, 2) + rnd(1)).toFixed(2);
+      const ax = +(-0.01 + 0.03 * f(6) + rnd(0.02)).toFixed(2);
+      const ay = +(-0.04 + 0.02 * f(5) + rnd(0.02)).toFixed(2);
+      const az = +(0.57 + 0.05 * f(7) + rnd(0.02)).toFixed(2);
+      const fld = +Math.hypot(mx, my, mz).toFixed(2);
+      const hd = +(((Math.atan2(my, mx) * 180 / Math.PI) + 360) % 360).toFixed(1);
+      const nextBattV = Math.max(3.3, +(c.battery_v - 0.0004).toFixed(4));
+      const nextBattPct = +(((nextBattV - 3.3) / (4.2 - 3.3)) * 100).toFixed(1);
+
+      const simPacket = {
+        temp: +(26.2 + 0.6 * f(8) + rnd(0.2)).toFixed(2),
+        humidity: +(63.9 + rnd(0.6)).toFixed(1),
+        ax,
+        ay,
+        az,
+        gx,
+        gy,
+        gz,
+        mx,
+        my,
+        mz,
+        heading: hd,
+        altitude: +(6 + 9 * f(9) + rnd(0.4)).toFixed(2),
+        lat: +(c.lat + rnd(0.00002)).toFixed(5),
+        lon: +(c.lon + rnd(0.00002)).toFixed(5),
+        gps_fix: '1',
+        uptime: 6800 + t,
+        air_time: 583 + (t % 7),
+        data_rate: 1641,
+        rssi: Math.round(-48 + rnd(6)),
+        snr: +(11.3 + rnd(1)).toFixed(1),
+        latency: Math.round(167 + rnd(40)),
+        packet_size: 118,
+        battery: nextBattPct,
+        battery_v: +nextBattV.toFixed(2),
+        wheel_strength: fld
+      };
+
+      ingestTelemetryPacket(simPacket);
+    }
+
+    // =========================================================================
+    // Data Export & Download Handlers (.CSV, .JSON, .TXT)
+    // =========================================================================
+    // A tiny helper that turns text into a real file and asks your browser to save it. This is how the CSV and JSON buttons work.
+    function triggerFileDownload(filename, content, mimeType) {
+      GARUDA.download(filename, content, mimeType);
+    }
+
+    // Save everything we've heard so far as a spreadsheet-friendly CSV (garuda_flight_log.csv). Perfect for Excel, MATLAB or Python.
+    function exportTelemetryCsv() {
+      if (state.telemetryLog.length === 0) {
+        showToast('Nothing to save just yet. Give it a few packets first!');
+        return;
+      }
+      const headers = [
+        'packet_id','timestamp','temp_c','humidity_pct',
+        'accel_x','accel_y','accel_z',
+        'gyro_x','gyro_y','gyro_z',
+        'mag_x','mag_y','mag_z',
+        'heading_deg','altitude_m','latitude','longitude','gps_fix',
+        'uptime_s','air_time_ms','data_rate_kbps','rssi_dbm','snr_db',
+        'latency_ms','packet_size_bytes','battery_pct','wheel_strength_pct'
+      ];
+      const rows = state.telemetryLog.map(r => [
+        r.packet_id, r.timestamp, r.temp.toFixed(2), r.humidity.toFixed(2),
+        r.ax, r.ay, r.az,
+        r.gx, r.gy, r.gz,
+        r.mx, r.my, r.mz,
+        r.heading, r.altitude, r.lat, r.lon, `"${r.gps_fix}"`,
+        r.uptime, r.air_time, r.data_rate, r.rssi, r.snr,
+        r.latency, r.packet_size, r.battery, r.wheel_strength
+      ].join(','));
+
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      triggerFileDownload('garuda_flight_log.csv', csvContent, 'text/csv;charset=utf-8;');
+      showToast(`Saved ${state.telemetryLog.length} packets to your spreadsheet-ready CSV. Happy analysing!`);
+    }
+
+    // Same data as the CSV, but as JSON (garuda_flight_log.json) for when you want to play with it in code.
+    function exportTelemetryJson() {
+      const jsonContent = JSON.stringify(state.telemetryLog, null, 2);
+      triggerFileDownload('garuda_flight_log.json', jsonContent, 'application/json');
+      showToast(`Saved ${state.telemetryLog.length} packets as JSON. Enjoy!`);
+    }
+
+    function exportRawSerialLog() {
+      const txtContent = state.rawSerialLines.join('\n');
+      triggerFileDownload('garuda_raw_serial.log', txtContent, 'text/plain');
+      showToast(`Saved ${state.rawSerialLines.length} raw serial lines, straight from the wire.`);
+    }
+
+    // =========================================================================
+    // Event Listeners & UI Wiring
+    // =========================================================================
+    document.getElementById('connectSerialBtn').addEventListener('click', connectWebSerial);
+
+    document.getElementById('modeSimBtn').addEventListener('click', () => {
+      state.mode = 'sim';
+      updateConnectionStatusUI();
+      showToast('Practice mode is on. Simulated packets are flowing!');
+    });
+
+    document.getElementById('modeSerialBtn').addEventListener('click', () => {
+      state.mode = 'serial';
+      updateConnectionStatusUI();
+      if (!state.serialConnected) {
+        connectWebSerial();
+      }
+    });
+
+    document.getElementById('pauseStreamBtn').addEventListener('click', () => {
+      state.paused = !state.paused;
+      const btn = document.getElementById('pauseStreamLabel');
+      btn.textContent = state.paused ? 'Resume the stream' : 'Pause the stream';
+      showToast(state.paused ? 'Telemetry stream paused.' : 'Telemetry stream resumed.');
+    });
+
+    document.getElementById('closeToastBtn').addEventListener('click', () => {
+      document.getElementById('statusToast').classList.add('hidden');
+    });
+
+    document.getElementById('centerMapBtn').addEventListener('click', () => {
+      state.centerMapOnSat = !state.centerMapOnSat;
+      document.getElementById('centerMapBtn').textContent = state.centerMapOnSat ? 'Center: CubeSat' : 'Center: GSU Base';
+      drawGroundTrackMap();
+    });
+
+    document.getElementById('clearTrailBtn').addEventListener('click', () => {
+      state.groundTrack = [{ lat: state.current.lat, lon: state.current.lon }];
+      drawGroundTrackMap();
+    });
+
+    document.getElementById('downloadCsvBtn').addEventListener('click', exportTelemetryCsv);
+    document.getElementById('downloadJsonBtn').addEventListener('click', exportTelemetryJson);
+    document.getElementById('downloadRawLogBtn').addEventListener('click', exportRawSerialLog);
+
+    document.getElementById('clearLogBufferBtn').addEventListener('click', () => {
+      state.telemetryLog = [];
+      state.rawSerialLines = [];
+      state.packetCount = 0;
+      document.getElementById('serialConsoleBox').innerHTML = '';
+      updateDashboardUI();
+      showToast('All clear! Fresh start for your recording.');
+    });
+
+    document.getElementById('injectSerialBtn').addEventListener('click', () => {
+      const input = document.getElementById('manualSerialInput');
+      const val = input.value.trim() || '{"temp":27.3,"humidity":38.4,"ax":0.22,"ay":-0.11,"az":9.79,"rssi":-66,"snr":10.4,"altitude":1495,"wheel":72.5}';
+      parseIncomingSerialLine(val);
+      input.value = '';
+    });
+
+    // Chart Filter Tabs
+    document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-chart-filter');
+        document.querySelectorAll('.chart-filter-btn').forEach(b => {
+          b.className = 'chart-filter-btn px-2.5 py-1 rounded text-slate-300 hover:text-white transition';
+        });
+        btn.className = 'chart-filter-btn px-2.5 py-1 rounded bg-cyan-600 text-white font-medium transition';
+
+        const cards = {
+          temp: document.getElementById('chartCardTemp'),
+          accel: document.getElementById('chartCardAccel'),
+          powerSignal: document.getElementById('chartCardPowerSignal'),
+          wheelAlt: document.getElementById('chartCardWheelAlt'),
+          gyro: document.getElementById('chartCardGyro'),
+          mag: document.getElementById('chartCardMag')
+        };
+
+        const grid = document.getElementById('chartsGridContainer');
+        if (filter === 'all') {
+          grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4';
+          Object.values(cards).forEach(el => el.classList.remove('hidden'));
+        } else if (filter === 'imu') {
+          grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+          Object.entries(cards).forEach(([k, el]) => {
+            el.classList.toggle('hidden', k !== 'gyro' && k !== 'mag');
+          });
+        } else {
+          grid.className = 'grid grid-cols-1 gap-4';
+          Object.entries(cards).forEach(([k, el]) => {
+            el.classList.toggle('hidden', k !== filter);
+          });
+        }
+      });
+    });
+
+    // Firmware Modal Controls
+    const firmwareModal = document.getElementById('firmwareModal');
+    document.getElementById('openFirmwareModalBtn').addEventListener('click', () => {
+      firmwareModal.classList.remove('hidden');
+    });
+    document.getElementById('closeFirmwareModalBtn').addEventListener('click', () => {
+      firmwareModal.classList.add('hidden');
+    });
+    document.getElementById('closeFirmwareModalFooterBtn').addEventListener('click', () => {
+      firmwareModal.classList.add('hidden');
+    });
+    document.getElementById('copyFirmwareBtn').addEventListener('click', () => {
+      const code = document.getElementById('firmwareCodeBlock').innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      document.getElementById('copyFirmwareBtn').textContent = 'Copied!';
+      setTimeout(() => {
+        document.getElementById('copyFirmwareBtn').textContent = 'Copy ESP32 Code';
+      }, 1800);
+    });
+
+
+    // =========================================================================
+    // G.A.R.U.D.A. · Mission Control (Page 1 & Page 2 Engine)
+    // =========================================================================
+    const N_MORTIS = 20;
+    const H_MORTIS = {
+      mag: [[], [], []],
+      gyr: [[], [], []],
+      fld: [[]],
+      alt: [[]],
+      acc: [[]],
+      tmp: [[]],
+      whl: [[], [], []],
+      rf: [[], []],
+      hum: [[]],
+      lat: [[]],
+      bat: [[]]
+    };
+    const COL_MORTIS = ['#d9302b', '#c4c4c0', '#7a8594'];
+    const S_MORTIS = {
+      t: 0,
+      batt: 3.96,
+      on: true,
+      lat: 20.59381,
+      lon: 78.96319,
+      hdg: 47,
+      roll: 0.12,
+      pitch: -0.08,
+      wheelStrength: 64.2,
+      log: []
+    };
+
+    function drawMortisChart(id, series, cols) {
+      const c = document.getElementById(id);
+      if (!c) return;
+      const d = window.devicePixelRatio || 1;
+      const w = c.clientWidth || 320;
+      const h = c.clientHeight || 150;
+      c.width = w * d;
+      c.height = h * d;
+      const x = c.getContext('2d');
+      x.scale(d, d);
+      const all = series.flat();
+      if (!all.length) return;
+      let lo = Math.min(...all), hi = Math.max(...all);
+      if (hi - lo < .2) {
+        const m = (hi + lo) / 2;
+        lo = m - .1;
+        hi = m + .1;
+      }
+      const pad = (hi - lo) * .15;
+      lo -= pad;
+      hi += pad;
+      const L = 38, B = 20, T = 6, R = 8, pw = w - L - R, ph = h - T - B;
+      x.font = '10px sans-serif';
+      x.fillStyle = cs('--mut') || '#555';
+      x.strokeStyle = cs('--grid') || '#e2e2e6';
+      x.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = T + ph * i / 4;
+        x.beginPath();
+        x.moveTo(L, y);
+        x.lineTo(w - R, y);
+        x.stroke();
+        x.textAlign = 'right';
+        x.fillText((hi - (hi - lo) * i / 4).toFixed(Math.abs(hi) < 5 ? 2 : 0), L - 5, y + 3);
+      }
+      x.textAlign = 'center';
+      for (let i = 0; i <= 4; i++) {
+        const px = L + pw * i / 4;
+        x.fillText(String(Math.round(-N_MORTIS * (1 - i / 4)) + 's'), px, h - 5);
+      }
+      series.forEach((s, k) => {
+        x.beginPath();
+        x.strokeStyle = (cols[k] === '#c4c4c0' || cols[k] === '#3a3a3f') ? (cs('--g') || '#3a3a3f') : (cols[k] || COL_MORTIS[0]);
+        x.lineWidth = 1.8;
+        s.forEach((v, i) => {
+          const px = L + pw * (i + N_MORTIS - s.length) / (N_MORTIS - 1);
+          const py = T + ph * (1 - (v - lo) / (hi - lo));
+          if (i) x.lineTo(px, py);
+          else x.moveTo(px, py);
+        });
+        x.stroke();
+      });
+    }
+
+    function drawMortisCube() {
+      const c = document.getElementById('c-m-cube');
+      if (!c) return;
+      const d = window.devicePixelRatio || 1;
+      const w = c.clientWidth || 320;
+      const h = c.clientHeight || 185;
+      c.width = w * d;
+      c.height = h * d;
+      const ctx = c.getContext('2d');
+      ctx.save();
+      ctx.scale(d, d);
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#1d1d22';
+      ctx.lineWidth = 1;
+      for (let gx = 20; gx < w; gx += 40) {
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, h);
+        ctx.stroke();
+      }
+      for (let gy = 20; gy < h; gy += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+
+      const cx = w / 2;
+      const cy = h / 2 + 4;
+      const sz = Math.min(w, h) * 0.25;
+      const yaw = (S_MORTIS.hdg * Math.PI) / 180;
+      const pitch = S_MORTIS.pitch;
+      const roll = S_MORTIS.roll;
+
+      const verts = [
+        [-1, -1.25, -1], [1, -1.25, -1], [1, 1.25, -1], [-1, 1.25, -1],
+        [-1, -1.25,  1], [1, -1.25,  1], [1, 1.25,  1], [-1, 1.25,  1]
+      ];
+      const proj = verts.map(([vx, vy, vz]) => {
+        let x1 = vx * Math.cos(roll) - vy * Math.sin(roll);
+        let y1 = vx * Math.sin(roll) + vy * Math.cos(roll);
+        let z1 = vz;
+        let y2 = y1 * Math.cos(pitch) - z1 * Math.sin(pitch);
+        let z2 = y1 * Math.sin(pitch) + z1 * Math.cos(pitch);
+        let x2 = x1 * Math.cos(yaw) + z2 * Math.sin(yaw);
+        let z3 = -x1 * Math.sin(yaw) + z2 * Math.cos(yaw);
+        const f = 4.2 / (4.2 + z3 * 0.45);
+        return { x: cx + x2 * sz * f, y: cy + y2 * sz * f };
+      });
+
+      const edges = [
+        [0,1],[1,2],[2,3],[3,0],
+        [4,5],[5,6],[6,7],[7,4],
+        [0,4],[1,5],[2,6],[3,7]
+      ];
+      ctx.strokeStyle = '#c4c4c0';
+      ctx.lineWidth = 1.6;
+      edges.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(proj[a].x, proj[a].y);
+        ctx.lineTo(proj[b].x, proj[b].y);
+        ctx.stroke();
+      });
+
+      ctx.strokeStyle = '#d9302b';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, sz * 0.62, sz * 0.28, (S_MORTIS.t * 0.35) % (Math.PI * 2), 0, Math.PI * 1.7);
+      ctx.stroke();
+
+      ctx.fillStyle = '#86868b';
+      ctx.font = '10px monospace';
+      ctx.fillText(`HDG ${S_MORTIS.hdg.toFixed(0)}° | WHL ${S_MORTIS.wheelStrength.toFixed(1)}%`, 10, h - 8);
+      ctx.restore();
+    }
+
+    function pushMortis(arr, val) {
+      arr.push(val);
+      if (arr.length > N_MORTIS) arr.shift();
+    }
+
+    function renderMortisAll() {
+      drawMortisChart('c-mag', H_MORTIS.mag, COL_MORTIS);
+      drawMortisChart('c-gyr', H_MORTIS.gyr, COL_MORTIS);
+      drawMortisChart('c-fld', H_MORTIS.fld, [COL_MORTIS[1]]);
+      drawMortisChart('c-alt', H_MORTIS.alt, [COL_MORTIS[1]]);
+      drawMortisChart('c-acc', H_MORTIS.acc, [COL_MORTIS[1]]);
+      drawMortisChart('c-tmp', H_MORTIS.tmp, [COL_MORTIS[1]]);
+
+      drawMortisChart('c-m-whl', H_MORTIS.whl, COL_MORTIS);
+      drawMortisChart('c-m-rf', H_MORTIS.rf, [COL_MORTIS[0], COL_MORTIS[1]]);
+      drawMortisChart('c-m-hum', H_MORTIS.hum, [COL_MORTIS[1]]);
+      drawMortisChart('c-m-lat', H_MORTIS.lat, [COL_MORTIS[0]]);
+      drawMortisChart('c-m-bat', H_MORTIS.bat, [COL_MORTIS[1]]);
+      drawMortisCube();
+    }
+
+    function tickMortis() {
+      if (!S_MORTIS.on) return;
+      const t = S_MORTIS.t++;
+      const f = (a, p, ph = 0) => Math.sin(t / p + ph);
+      const rnd = (a = 1) => (Math.random() - .5) * a;
+
+      const m = [33 + 9 * f(0, 3) + rnd(3), 22 + 8 * f(0, 4, 1) + rnd(3), 15.3 + 4 * f(0, 5, 2) + rnd(2)];
+      const g = [3.25 + 12 * f(0, 4) + rnd(1), -18.9 + 10 * f(0, 5, 1) + rnd(1), 14.47 + 12 * f(0, 6, 2) + rnd(1)];
+      const alt = 6 + 9 * f(0, 9) + rnd(.4);
+      const a = [-.01 + .03 * f(0, 6) + rnd(.02), -.04 + .02 * f(0, 5) + rnd(.02), .57 + .05 * f(0, 7) + rnd(.02)];
+      const am = Math.hypot(...a);
+      const tmp = 26.2 + .6 * f(0, 8) + rnd(.2);
+      const fld = Math.hypot(...m);
+      const hd = ((Math.atan2(m[1], m[0]) * 180 / Math.PI) + 360) % 360;
+      const hum = 63.9 + rnd(.6);
+      const whl = [
+        64.2 + 11 * f(0, 4) + rnd(1.5),
+        48.5 + 9 * f(0, 5, 1) + rnd(1.5),
+        55.0 + 7 * f(0, 6, 2) + rnd(1.5)
+      ];
+
+      S_MORTIS.hdg = hd;
+      S_MORTIS.roll = Math.atan2(-a[0], Math.sqrt(a[1] * a[1] + a[2] * a[2]));
+      S_MORTIS.pitch = Math.atan2(a[1], a[2]);
+      S_MORTIS.wheelStrength = whl[0];
+
+      m.forEach((v, i) => pushMortis(H_MORTIS.mag[i], v));
+      g.forEach((v, i) => pushMortis(H_MORTIS.gyr[i], v));
+      whl.forEach((v, i) => pushMortis(H_MORTIS.whl[i], v));
+
+      pushMortis(H_MORTIS.fld[0], fld);
+      pushMortis(H_MORTIS.alt[0], alt);
+      pushMortis(H_MORTIS.acc[0], am);
+      pushMortis(H_MORTIS.tmp[0], tmp);
+      pushMortis(H_MORTIS.hum[0], hum);
+
+      S_MORTIS.batt = Math.max(3.3, S_MORTIS.batt - .0004);
+      S_MORTIS.lat += rnd(.00002);
+      S_MORTIS.lon += rnd(.00002);
+
+      const rssi = Math.round(-48 + rnd(6));
+      const snrNum = +(11.3 + rnd(1)).toFixed(1);
+      const lat = Math.round(167 + rnd(40));
+      const airtime = 583 + (t % 7);
+
+      pushMortis(H_MORTIS.rf[0], rssi);
+      pushMortis(H_MORTIS.rf[1], snrNum);
+      pushMortis(H_MORTIS.lat[0], lat);
+      pushMortis(H_MORTIS.bat[0], S_MORTIS.batt);
+
+      const ts = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      document.querySelectorAll('.ts').forEach(e => { e.textContent = ts; });
+
+      document.getElementById('head').textContent = hd.toFixed(0) + '° ' + ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(hd / 45) % 8];
+      document.getElementById('needle').setAttribute('transform', 'rotate(' + hd + ')');
+      document.getElementById('lat').textContent = S_MORTIS.lat.toFixed(5) + '° N';
+      document.getElementById('lon').textContent = S_MORTIS.lon.toFixed(5) + '° E';
+      document.getElementById('lat2').textContent = lat + ' ms';
+      document.getElementById('batt').textContent = S_MORTIS.batt.toFixed(2) + ' V';
+      document.getElementById('rssi').textContent = rssi + ' dBm';
+
+      const pinX = 162 + Math.sin(t / 6) * 14;
+      const pinY = 62 + Math.cos(t / 6) * 12;
+      const pinEl = document.getElementById('mortisMapPin');
+      if (pinEl) pinEl.setAttribute('transform', `translate(${pinX.toFixed(1)} ${pinY.toFixed(1)})`);
+
+      const lvl = Math.round((S_MORTIS.batt - 3.3) / (4.2 - 3.3) * 10);
+      document.getElementById('bars').innerHTML = Array.from({ length: 10 }, (_, i) => `<i style="height:${14 + i * 3}px;opacity:${i < lvl ? 1 : .25}"></i>`).join('');
+
+      document.getElementById('v-mag').textContent = m[0].toFixed(2);
+      document.getElementById('v-gyr').textContent = g[0].toFixed(2);
+      document.getElementById('v-fld').textContent = fld.toFixed(2);
+      document.getElementById('v-alt').textContent = alt.toFixed(2);
+      document.getElementById('v-acc').textContent = am.toFixed(2);
+      document.getElementById('v-tmp').textContent = tmp.toFixed(2);
+
+      const rows = [
+        ['Temperature', tmp.toFixed(1) + ' °C'],
+        ['Humidity', hum.toFixed(1) + '%'],
+        ['Accel X', a[0].toFixed(2) + ' g'],
+        ['Accel Y', a[1].toFixed(2) + ' g'],
+        ['Accel Z', a[2].toFixed(2) + ' g'],
+        ['Gyro X', g[0].toFixed(2) + ' °/s'],
+        ['Gyro Y', g[1].toFixed(2) + ' °/s'],
+        ['Gyro Z', g[2].toFixed(2) + ' °/s'],
+        ['Mag X', m[0].toFixed(2) + ' µT'],
+        ['Mag Y', m[1].toFixed(2) + ' µT'],
+        ['Mag Z', m[2].toFixed(2) + ' µT'],
+        ['Heading', hd.toFixed(1) + '°'],
+        ['Latitude', S_MORTIS.lat.toFixed(5)],
+        ['Longitude', S_MORTIS.lon.toFixed(5)],
+        ['GPS fix', '1'],
+        ['Uptime', (6800 + t) + ' s'],
+        ['Airtime', airtime + ' ms'],
+        ['Data rate', '1641 bps'],
+        ['RSSI', rssi + ' dBm'],
+        ['SNR', snrNum.toFixed(1) + ' dB'],
+        ['Latency', lat + ' ms'],
+        ['Packet size', '118 B']
+      ];
+      document.getElementById('raw').innerHTML = rows.map(r => `<div><span>${r[0]}</span><b style="font-weight:500">${r[1]}</b></div>`).join('');
+
+      document.getElementById('m-p2-wheel').textContent = whl[0].toFixed(1) + ' %';
+      document.getElementById('m-p2-rpm').textContent = Math.round((whl[0] / 100) * 3800) + ' RPM';
+      document.getElementById('m-p2-snr').textContent = snrNum.toFixed(1) + ' dB';
+      document.getElementById('m-p2-toa').textContent = airtime + ' ms';
+      document.getElementById('m-p2-hum').textContent = hum.toFixed(1) + ' %';
+      document.getElementById('m-p2-pkts').textContent = String(S_MORTIS.log.length + 1);
+
+      const humLvl = Math.round((hum / 100) * 10);
+      document.getElementById('m-p2-humbars').innerHTML = Array.from({ length: 10 }, (_, i) => `<i style="height:${14 + i * 3}px;opacity:${i < humLvl ? 1 : .25}"></i>`).join('');
+
+      document.getElementById('v-m-whl').textContent = whl[0].toFixed(2);
+      document.getElementById('v-m-rf').textContent = String(rssi);
+      document.getElementById('v-m-hum').textContent = hum.toFixed(2);
+      document.getElementById('v-m-lat').textContent = String(lat);
+      document.getElementById('v-m-bat').textContent = S_MORTIS.batt.toFixed(2);
+
+      const csvLine = [ts, tmp.toFixed(2), ...a.map(v => v.toFixed(3)), ...g.map(v => v.toFixed(2)), ...m.map(v => v.toFixed(2)), alt.toFixed(2), S_MORTIS.batt.toFixed(3), rssi, snrNum.toFixed(1), whl[0].toFixed(1)].join(',');
+      S_MORTIS.log.push(csvLine);
+      document.getElementById('mExportRows').textContent = String(S_MORTIS.log.length);
+
+      const dumpBox = document.getElementById('mortisSerialDump');
+      if (dumpBox) {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.borderBottom = '1px solid #19191d';
+        rowDiv.style.padding = '2px 0';
+        rowDiv.innerHTML = `<span style="color:#86868b">[${ts}]</span> <span style="color:#d9302b">RX</span> ${csvLine}`;
+        dumpBox.appendChild(rowDiv);
+        while (dumpBox.children.length > 60) dumpBox.removeChild(dumpBox.firstChild);
+        dumpBox.scrollTop = dumpBox.scrollHeight;
+      }
+
+      S_MORTIS.cur = { batt: S_MORTIS.batt, rssi, tmp, hum, am, alt, lat, snr: snrNum };
+      if (typeof checkAlerts === 'function') checkAlerts();
+      renderMortisAll();
+    }
+
+    let mortisTimer = null;
+    function setMortisOn(on) {
+      S_MORTIS.on = on;
+      const dotEl = document.getElementById('dot');
+      if (dotEl) dotEl.style.background = on ? '#16a34a' : '#d9302b';
+      document.getElementById('mStreamSourceLabel').textContent = on ? (state.serialConnected ? 'ESP32 USB SERIAL' : 'ACTIVE (1 Hz)') : 'PAUSED';
+      clearInterval(mortisTimer);
+      if (on) {
+        tickMortis();
+        mortisTimer = setInterval(tickMortis, 1000);
+      }
+    }
+
+    document.getElementById('conn').addEventListener('click', async () => {
+      if (!('serial' in navigator)) {
+        setHeaderNote('Hey there! Web Serial needs Chrome or Edge on a computer, opened in its own tab. Practice mode works anywhere.');
+        return;
+      }
+      await connectWebSerial();
+    });
+    document.getElementById('legacyConnLabelBtn').addEventListener('click', () => setMortisOn(!S_MORTIS.on));
+    document.getElementById('mortisUsbBtn').addEventListener('click', async () => {
+      await connectWebSerial();
+      const usbBtn = document.getElementById('mortisUsbBtn');
+      if (state.serialConnected) {
+        usbBtn.textContent = 'ESP32 CONNECTED';
+        usbBtn.classList.add('connected');
+        document.getElementById('mP2PortBadge').textContent = 'USB SERIAL ONLINE (115200)';
+      } else {
+        usbBtn.textContent = 'USB SERIAL (ESP32)';
+        usbBtn.classList.remove('connected');
+      }
+    });
+
+    document.getElementById('sup').addEventListener('click', () => {
+      document.getElementById('firmwareModal').classList.remove('hidden');
+    });
+
+    async function downloadOrCopyMortisCsv() {
+      const csv = 'time,temp_c,ax,ay,az,gx,gy,gz,mx,my,mz,alt_m,batt_v,rssi_dbm,snr_db,wheel_pct\n' + S_MORTIS.log.join('\n');
+      triggerFileDownload('garuda_flight_log.csv', csv, 'text/csv;charset=utf-8;');
+      const dlBtn = document.getElementById('dl');
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(csv);
+        }
+      } catch (e) {}
+      dlBtn.textContent = 'DOWNLOADED (' + S_MORTIS.log.length + ' ROWS)';
+      setTimeout(() => { dlBtn.textContent = 'DOWNLOAD DATA'; }, 2200);
+    }
+
+    document.getElementById('dl').addEventListener('click', downloadOrCopyMortisCsv);
+    document.getElementById('mDownloadCsvFileBtn').addEventListener('click', downloadOrCopyMortisCsv);
+    document.getElementById('mDownloadJsonFileBtn').addEventListener('click', exportTelemetryJson);
+    document.getElementById('mOpenSketchBtn').addEventListener('click', () => {
+      document.getElementById('firmwareModal').classList.remove('hidden');
+    });
+
+    document.getElementById('mClearSerialBtn').addEventListener('click', () => {
+      document.getElementById('mortisSerialDump').innerHTML = '';
+    });
+
+    document.getElementById('mortisInjectBtn').addEventListener('click', () => {
+      const inp = document.getElementById('mortisInjectInput');
+      const rawVal = inp.value.trim() || '{"temp":27.1,"humidity":61.5,"rssi":-44,"snr":12.1,"altitude":14.2,"wheel":71.0}';
+      parseIncomingSerialLine(rawVal);
+      tickMortis();
+      inp.value = '';
+    });
+
+    // Multi-Page Navigation Logic
+    // Hop between the pages without ever reloading, so your live stream never skips a beat.
+    function switchDashboardPage(mode) {
+      activeMainView = mode;
+      // The CubeSat Testing Lab only shows up when its tab is picked.
+      const labMain = document.getElementById('testPage');
+      if (labMain) labMain.hidden = mode !== 'test';
+      const labTab = document.getElementById('tabTestLab');
+      if (labTab) labTab.className = mode === 'test' ? 'b-crim' : 'b-gry';
+      const telMain = document.getElementById('tel');
+      const opsMain = document.getElementById('ops');
+      const p2Main = document.getElementById('mortisPage2');
+      const cyberHeader = document.getElementById('cyberHeader');
+      const cyberMain = document.getElementById('cyberMain');
+
+      const tabTel = document.getElementById('tab-tel');
+      const tabOps = document.getElementById('tab-ops');
+      const t1 = document.getElementById('tabMortisPage1');
+      const t2 = document.getElementById('tabMortisPage2');
+      const tBoth = document.getElementById('tabMortisBoth');
+      const tCyber = document.getElementById('tabCyberPage');
+
+      [tabTel, tabOps, t1, t2, tBoth, tCyber].forEach(b => {
+        if (b) b.className = 'b-gry';
+      });
+
+      telMain.hidden = true;
+      opsMain.hidden = true;
+      p2Main.hidden = true;
+      cyberHeader.classList.add('hidden');
+      cyberMain.classList.add('hidden');
+
+      if (mode === 'p1' || mode === 'tel') {
+        telMain.hidden = false;
+        tabTel.className = 'b-crim';
+        t1.className = 'b-crim';
+        renderMortisAll();
+      } else if (mode === 'ops') {
+        opsMain.hidden = false;
+        tabOps.className = 'b-crim';
+        renderLog();
+        alCache = '';
+        renderAlerts();
+      } else if (mode === 'p2') {
+        p2Main.hidden = false;
+        t2.className = 'b-crim';
+        renderMortisAll();
+      } else if (mode === 'both') {
+        telMain.hidden = false;
+        p2Main.hidden = false;
+        tBoth.className = 'b-crim';
+        renderMortisAll();
+      } else if (mode === 'cyber') {
+        cyberMain.classList.remove('hidden');
+        tCyber.className = 'b-crim';
+        drawGroundTrackMap();
+        drawAttitudeCube();
+      }
+    }
+
+    document.getElementById('tabMortisPage1').addEventListener('click', () => switchDashboardPage('p1'));
+    document.getElementById('tabMortisPage2').addEventListener('click', () => switchDashboardPage('p2'));
+    document.getElementById('tabMortisBoth').addEventListener('click', () => switchDashboardPage('both'));
+    document.getElementById('tabCyberPage').addEventListener('click', () => switchDashboardPage('cyber'));
+    document.getElementById('backToMortisBtn').addEventListener('click', () => switchDashboardPage('both'));
+
+    document.getElementById('gen2ViewBtn').addEventListener('click', () => switchDashboardPage('both'));
+
+    // Window Resize & Animation Loops
+    window.addEventListener('resize', () => {
+      drawGroundTrackMap();
+      drawAttitudeCube();
+      renderMortisAll();
+    });
+
+    let simIntervalId = null;
+    let animFrameId = null;
+
+    function animateCubeLoop() {
+      drawAttitudeCube();
+      animFrameId = requestAnimationFrame(animateCubeLoop);
+    }
+
+    window.addEventListener('load', () => {
+      // Seed initial 8 telemetry points so graphs look rich immediately
+      for (let i = 0; i < 8; i++) {
+        stepSimulator();
+      }
+      if (simIntervalId) clearInterval(simIntervalId);
+      simIntervalId = setInterval(stepSimulator, 1000);
+
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      animateCubeLoop();
+      let initTh = null;
+      try { initTh = localStorage.getItem('mortis-theme'); } catch (e) {}
+      setTheme(initTh || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
+      logAdd('SYSTEM', 'Dashboard started (simulator)');
+      for (let i = 0; i < 12; i++) tickMortis();
+      setMortisOn(true);
+      updateHeaderDotAndButtons();
+    });
+  
+
+    // =========================================================================
+    // Redesigned G.A.R.U.D.A. Alerts, Thresholds, Mission Log & Light/Dark Theme
+    // =========================================================================
+    const cs = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    const esc = x => String(x).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const T_THR = [
+      ['batt','Battery','V',3.5,null,2],
+      ['rssi','Signal (RSSI)','dBm',-70,null,0],
+      ['snr','LoRa SNR','dB',6,null,1],
+      ['tmp','Temperature','°C',null,30,1],
+      ['hum','Humidity','%',null,70,1],
+      ['am','Acceleration','g',null,1,2],
+      ['alt','Altitude','m',null,18,1],
+      ['lat','Latency','ms',null,250,0]
+    ].map(([k,n,u,lo,hi,d]) => ({k,n,u,lo,hi,d}));
+
+    let LOG_OPS = [], AL_OPS = {}, activeMainView = 'tel', alCache = '';
+    try {
+      (JSON.parse(localStorage.getItem('mortis-thr')) || []).forEach((x, i) => {
+        if (T_THR[i]) { T_THR[i].lo = x.lo; T_THR[i].hi = x.hi; }
+      });
+      LOG_OPS = JSON.parse(localStorage.getItem('mortis-log')) || [];
+    } catch (e) {}
+
+    const saveOps = () => {
+      try {
+        localStorage.setItem('mortis-thr', JSON.stringify(T_THR.map(t => ({lo:t.lo, hi:t.hi}))));
+        localStorage.setItem('mortis-log', JSON.stringify(LOG_OPS.slice(0, 150)));
+      } catch (e) {}
+    };
+
+    function setHeaderNote(t) {
+      const el = document.getElementById('note');
+      if (el) el.textContent = t;
+    }
+
+    function logAdd(type, msg) {
+      LOG_OPS.unshift({
+        t: new Date().toLocaleString([], {month:'short', day:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'}),
+        type,
+        msg
+      });
+      LOG_OPS = LOG_OPS.slice(0, 300);
+      saveOps();
+      if (activeMainView === 'ops') renderLog();
+    }
+
+    function renderLog() {
+      const f = document.getElementById('lf').value;
+      document.getElementById('log').innerHTML =
+        '<tr><th>Time</th><th>Type</th><th>Message</th></tr>' +
+        (LOG_OPS.filter(l => !f || l.type === f).map(l => `<tr><td>${esc(l.t)}</td><td><span class="ty ${l.type}">${l.type}</span></td><td>${esc(l.msg)}</td></tr>`).join('') ||
+        '<tr><td colspan="3" style="color:var(--mut)">No entries.</td></tr>');
+    }
+
+    function renderAlerts() {
+      const ks = Object.keys(AL_OPS);
+      const h = ks.length
+        ? ks.map(k => {
+            const t = T_THR.find(x => x.k === k), a = AL_OPS[k];
+            return `<div class="al${a.ack ? ' ack' : ''}"><span><b>${t.n}</b> ${a.v.toFixed(t.d)} ${t.u}<br><small>limit ${t.lo != null ? 'min ' + t.lo : ''} ${t.hi != null ? 'max ' + t.hi : ''} · since ${new Date(a.t).toLocaleTimeString()}${a.ack ? ' · acknowledged' : ''}</small></span>${a.ack ? '' : `<button class="btn" data-k="${k}">Acknowledge</button>`}</div>`;
+          }).join('')
+        : '<div class="nom">All systems nominal. No readings outside limits.</div>';
+      if (h !== alCache) {
+        alCache = h;
+        document.getElementById('alerts').innerHTML = h;
+      }
+    }
+
+    // Compares each live reading with your limits and raises a friendly alert the moment something wanders out of range.
+    function checkAlerts() {
+      const c = S_MORTIS.cur;
+      if (!c) return;
+      T_THR.forEach(t => {
+        const v = c[t.k];
+        if (typeof v !== 'number') return;
+        const bad = (t.lo != null && v < t.lo) || (t.hi != null && v > t.hi);
+        const a = AL_OPS[t.k];
+        if (bad && !a) {
+          AL_OPS[t.k] = { t: Date.now(), ack: false, v };
+          logAdd('ALERT', t.n + ' ' + v.toFixed(t.d) + ' ' + t.u + ' is outside limits');
+        } else if (!bad && a) {
+          delete AL_OPS[t.k];
+          logAdd('CLEARED', t.n + ' back in range (' + v.toFixed(t.d) + ' ' + t.u + ')');
+        } else if (a) {
+          a.v = v;
+        }
+        const el = document.getElementById('now-' + t.k);
+        if (el) {
+          el.textContent = v.toFixed(t.d) + ' ' + t.u;
+          el.className = bad ? 'bad' : 'ok';
+        }
+      });
+      const n = Object.values(AL_OPS).filter(a => !a.ack).length;
+      const bdg = document.getElementById('bdg');
+      if (bdg) {
+        bdg.hidden = !n;
+        bdg.textContent = n;
+      }
+      renderAlerts();
+    }
+
+    document.getElementById('thr').innerHTML =
+      '<tr><th>Metric</th><th>Min</th><th>Max</th><th>Now</th></tr>' +
+      T_THR.map((t, i) => `<tr><td>${t.n}</td><td><input type="number" step="any" data-i="${i}" data-b="lo" value="${t.lo ?? ''}" aria-label="${t.n} minimum"></td><td><input type="number" step="any" data-i="${i}" data-b="hi" value="${t.hi ?? ''}" aria-label="${t.n} maximum"></td><td id="now-${t.k}">–</td></tr>`).join('');
+
+    document.getElementById('thr').addEventListener('change', e => {
+      const d = e.target.dataset;
+      if (d.i == null) return;
+      const t = T_THR[+d.i];
+      t[d.b] = e.target.value === '' ? null : +e.target.value;
+      saveOps();
+      logAdd('EVENT', t.n + ' ' + (d.b === 'lo' ? 'minimum' : 'maximum') + ' set to ' + (t[d.b] ?? 'none'));
+      checkAlerts();
+    });
+
+    document.getElementById('alerts').addEventListener('click', e => {
+      const k = e.target.dataset.k;
+      if (k && AL_OPS[k]) {
+        AL_OPS[k].ack = true;
+        logAdd('EVENT', 'Alert acknowledged: ' + T_THR.find(x => x.k === k).n);
+        checkAlerts();
+      }
+    });
+
+    const addOpNote = () => {
+      const ln = document.getElementById('ln');
+      const v = ln.value.trim();
+      if (v) {
+        logAdd('NOTE', v);
+        ln.value = '';
+      }
+    };
+    document.getElementById('la').addEventListener('click', addOpNote);
+    document.getElementById('ln').addEventListener('keydown', e => { if (e.key === 'Enter') addOpNote(); });
+    document.getElementById('lf').addEventListener('change', renderLog);
+    document.getElementById('lx').addEventListener('click', () => {
+      LOG_OPS = [];
+      saveOps();
+      logAdd('SYSTEM', 'Log cleared');
+    });
+    document.getElementById('lc').addEventListener('click', async () => {
+      const txt = 'time,type,message\n' + LOG_OPS.map(l => [l.t, l.type, '"' + l.msg.replace(/"/g, '""') + '"'].join(',')).join('\n');
+      try {
+        await navigator.clipboard.writeText(txt);
+        setHeaderNote('Log copied (' + LOG_OPS.length + ' entries)');
+      } catch (e) {
+        triggerFileDownload('garuda_mission_log.csv', txt, 'text/csv');
+        setHeaderNote('Log downloaded (' + LOG_OPS.length + ' entries)');
+      }
+    });
+
+    // Header Controls from Redesigned File (#m-sim, #m-ser, #pausebtn, #skb, #theme, #tab-tel, #tab-ops)
+    function updateHeaderDotAndButtons() {
+      const live = S_MORTIS.on && !state.paused;
+      const dot = document.getElementById('dot');
+      if (dot) dot.style.background = live ? '#16a34a' : '#d9302b';
+      const pill = document.getElementById('pillTxt');
+      if (pill) pill.textContent = state.paused ? 'Paused · take a breather' : (state.serialConnected ? 'Live from your ESP32' : (state.mode === 'serial' ? 'Waiting for your ESP32… plug it in and let\u2019s go!' : 'Practice mode · simulated LoRa'));
+      const hint = document.getElementById('ghHint');
+      if (hint) hint.textContent = state.paused ? 'Paused. Press \u201cResume the stream\u201d to keep going.' : (state.serialConnected ? 'Live data is flowing from your CubeSat. Use \u201cSave data\u201d any time to keep a copy.' : (state.mode === 'serial' ? 'Plug in your ESP32 with the USB cable, then press \u201cConnect my ESP32\u201d.' : 'You\u2019re in practice mode with simulated packets. To use real data, choose \u201cLive ESP32\u201d.'));
+      const pb = document.getElementById('pausebtn');
+      if (pb) pb.textContent = state.paused ? 'Resume the stream' : 'Pause the stream';
+    }
+
+    document.getElementById('m-sim').addEventListener('click', () => {
+      state.mode = 'sim';
+      document.getElementById('m-sim').classList.add('act');
+      document.getElementById('m-sim').setAttribute('aria-pressed', 'true');
+      document.getElementById('m-ser').classList.remove('act');
+      document.getElementById('m-ser').setAttribute('aria-pressed', 'false');
+      setHeaderNote('');
+      setMortisOn(true);
+      updateHeaderDotAndButtons();
+      logAdd('EVENT', 'Source: simulator');
+    });
+
+    document.getElementById('m-ser').addEventListener('click', () => {
+      state.mode = 'serial';
+      document.getElementById('m-ser').classList.add('act');
+      document.getElementById('m-ser').setAttribute('aria-pressed', 'true');
+      document.getElementById('m-sim').classList.remove('act');
+      document.getElementById('m-sim').setAttribute('aria-pressed', 'false');
+      logAdd('EVENT', 'Source: USB serial');
+      if (!state.serialConnected) {
+        setHeaderNote('Ready when you are! Plug in your ESP32 and press “Connect my ESP32”.');
+      }
+      updateHeaderDotAndButtons();
+    });
+
+    document.getElementById('pausebtn').addEventListener('click', () => {
+      state.paused = !state.paused;
+      setMortisOn(!state.paused);
+      updateHeaderDotAndButtons();
+      logAdd('EVENT', state.paused ? 'Stream paused' : 'Stream resumed');
+    });
+
+    document.getElementById('skb').addEventListener('click', () => {
+      document.getElementById('firmwareModal').classList.remove('hidden');
+    });
+
+    // Day and night mode: we flip one data-theme switch on <html> and every colour follows. Bright for sunny field tests, glowing slate for night shifts.
+    function setTheme(t) {
+      document.documentElement.dataset.theme = t;
+      const thBtn = document.getElementById('theme');
+      if (thBtn) thBtn.textContent = t === 'dark' ? '☀ Day mode' : '🌙 Night mode';
+      try { localStorage.setItem('mortis-theme', t); } catch (e) {}
+      renderMortisAll();
+    }
+
+    document.getElementById('theme').addEventListener('click', () => {
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+
+    document.getElementById('tab-tel').addEventListener('click', () => switchDashboardPage('p1'));
+    document.getElementById('tab-ops').addEventListener('click', () => switchDashboardPage('ops'));
+
+  
+    // Close any modal with Escape or a click on its backdrop
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.fixed.inset-0.z-50').forEach(m => m.classList.add('hidden'));
+    });
+    document.addEventListener('click', e => {
+      if (e.target.matches && e.target.matches('.fixed.inset-0.z-50')) e.target.classList.add('hidden');
+    });
+
+    // ---- Your details: asked on the Welcome page, editable here with the pencil button ----
+    document.addEventListener('DOMContentLoaded', function () {
+      const ov = document.getElementById('setupOv'), box = document.getElementById('setupFields'), cancel = document.getElementById('setupCancel');
+      // Show the saved CubeSat name, team and operator in the header and the browser tab.
+      function apply() {
+        const n = GARUDA.names();
+        document.getElementById('satNameLbl').textContent = n.cubesat || 'Name your CubeSat';
+        document.title = 'G.A.R.U.D.A. \u00b7 ' + (n.cubesat || 'CubeSat Telemetry');
+        const sub = document.querySelector('header .sub');
+        if (sub) {
+          let chip = document.getElementById('authorChip');
+          if (!chip) { chip = document.createElement('span'); chip.id = 'authorChip'; sub.appendChild(chip); }
+          chip.textContent = (n.team ? ' \u00b7 Team: ' + n.team + (n.teamId ? ' (ID ' + n.teamId + ')' : '') : '') + (n.operator ? ' \u00b7 On duty: ' + n.operator : '');
+        }
+      }
+      function open() {
+        box.innerHTML = GARUDA.formHtml('telemetry');
+        ov.classList.add('open');
+        const f = box.querySelector('input'); if (f) setTimeout(() => f.focus(), 30);
+      }
+      function done() { GARUDA.setNames(GARUDA.readForm(box)); apply(); ov.classList.remove('open'); }
+      document.getElementById('setupGo').addEventListener('click', done);
+      cancel.addEventListener('click', () => ov.classList.remove('open'));
+      box.addEventListener('keydown', e => { if (e.key === 'Enter') done(); });
+      document.getElementById('editMissionBtn').addEventListener('click', open);
+      apply();
+    });
+
+
+    // A couple of friendly finishing touches once the page is ready.
+    document.addEventListener('DOMContentLoaded', function () {
+      // Keep the footer year fresh so you never have to edit it again.
+      
+      // Not every browser can talk to USB hardware. If this one can't, say so kindly (and keep practice mode available).
+      if (!('serial' in navigator)) {
+        document.getElementById('browserWarn').hidden = false;
+        document.getElementById('browserWarnX').addEventListener('click', () => { document.getElementById('browserWarn').hidden = true; });
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('downloadXlsxBtn').addEventListener('click', () => {
+        if (!state.telemetryLog.length) { showToast('Nothing to save yet. Give it a few packets first!'); return; }
+        GARUDA.exportXlsx(state.telemetryLog, 'telemetry');
+        showToast('Saved your telemetry as an Excel file. Happy analysing!');
+      });
+    });
+    // ---- The "Save data" menu: one place for every download ----
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('saveBtn'), menu = document.getElementById('saveMenu');
+      const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); });
+      // Each item presses the matching export button that lives on the "3D, Map & Charts" page.
+      menu.addEventListener('click', e => { const t = e.target.closest('[data-save]'); if (t) { document.getElementById(t.dataset.save).click(); close(); } });
+      document.addEventListener('click', e => { if (!menu.contains(e.target)) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    });
+</script>
+
+<footer class="gfoot">Created by Niranjan CS.</footer>
+<div class="setup-ov" id="setupOv" role="dialog" aria-modal="true" aria-labelledby="setupTtl">
+  <div class="setup-box">
+    <h2 id="setupTtl">Your details</h2>
+    <p>Tell us who is on the ground station. They show in the header and on every download, with the date and time.</p>
+    <div id="setupFields"></div>
+    <div class="setup-act"><button type="button" id="setupCancel">Cancel</button><button type="button" class="go" id="setupGo">Save</button></div>
+  </div>
+</div>
+</body>
+</html>

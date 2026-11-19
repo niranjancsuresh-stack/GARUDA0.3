@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Welcome · G.A.R.U.D.A.</title>
+  <meta name="author" content="Niranjan CS">
+  <meta name="description" content="G.A.R.U.D.A. - Ground-link Automated Receiver & Unified Data Analyzer. Plug in, test, calibrate, take data.">
+  <link rel="icon" href="assets/logo-dark.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/garuda.css">
+  <script src="assets/garuda.js"></script>
+  <style>
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px}
+    .opts{display:grid;gap:12px;margin-top:20px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .opt{font:inherit;text-align:left;cursor:pointer;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;transition:transform .15s,border-color .15s,box-shadow .15s}
+    .opt:hover,.opt:focus-visible{transform:translateY(-2px);border-color:var(--acc2);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc2) 25%,transparent);outline:none}
+    .opt b{display:block;font-size:18px;margin-top:6px}.opt span{font-size:13px;color:var(--mut)}
+    .row{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+    h1{margin:8px 0 2px;font-size:27px;letter-spacing:.04em}
+  </style>
+</head>
+<body>
+  <header class="top wrap">
+    <strong style="letter-spacing:.12em">G.A.R.U.D.A.</strong>
+    <div style="display:flex;gap:8px"><button class="btn" id="openWelcome" type="button">Welcome</button><button class="btn" id="theme" type="button">🌙 Night mode</button></div>
+  </header>
+  <main class="wrap" style="flex:1"><p class="muted" style="text-align:center;margin-top:40px">Pick an option in the welcome window to get started.</p></main>
+  <footer>Created by Niranjan CS.</footer>
+
+  <!-- The welcome window. Step 1 = pick a section. Step 2 = tell us who is working. -->
+  <div class="ov" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welTitle">
+    <div class="card pop" style="padding:26px 26px 20px">
+      <div id="step1" style="text-align:center">
+        <img class="logo-l" src="assets/logo-light.webp" alt="G.A.R.U.D.A. logo" style="height:120px;width:auto">
+        <img class="logo-d" src="assets/logo-dark.webp" alt="G.A.R.U.D.A. logo" style="height:120px;width:auto;margin:0 auto">
+        <h1 id="welTitle">Welcome to G.A.R.U.D.A.</h1>
+        <div style="font-weight:600;color:var(--acc2)">Ground-link Automated Receiver &amp; Unified Data Analyzer</div>
+        <p class="muted" style="margin:10px 0 0">Plug in, test, calibrate, and take data, all in one friendly place.</p>
+        <div class="opts" style="text-align:left">
+          <button class="opt" type="button" data-mode="lab"><div style="font-size:26px">🧪</div><b>CubeSat Testing Lab</b><span>Check every sensor, calibrate like a drone, and test the reaction wheel.</span></button>
+          <button class="opt" type="button" data-mode="telemetry"><div style="font-size:26px">📡</div><b>CubeSat Telemetry</b><span>Watch live packets, graphs, the 3D view and the map, then save your data.</span></button>
+        </div>
+      </div>
+      <div id="step2" hidden>
+        <h2 id="formTitle" style="margin:0 0 4px"></h2>
+        <p class="muted" id="formSub" style="margin:0"></p>
+        <div id="formFields"></div>
+        <p class="muted sm">These details are saved on this computer and added to every download, with the date and time.</p>
+        <div class="row"><button class="btn" id="formBack" type="button">Back</button><button class="btn primary" id="formGo" type="button"></button></div>
+      </div>
+      <div class="muted sm" style="text-align:center;margin-top:16px">Created by Niranjan CS.</div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const COPY = {
+      lab: { title: 'Let\u2019s set up your testing lab', sub: 'Tell us who is testing, and which CubeSat is on the bench.', go: 'Enter the testing lab', page: 'testing-lab.html' },
+      telemetry: { title: 'Before we open telemetry', sub: 'Tell us who is on the ground station today.', go: 'Open telemetry', page: 'telemetry.html' }
+    };
+    let mode = 'lab';
+    function showStep1() { $('step1').hidden = false; $('step2').hidden = true; $('welcome').hidden = false; }
+    // Step 2 asks different questions for the lab and for telemetry.
+    function openForm(m) {
+      mode = m;
+      $('step1').hidden = true; $('step2').hidden = false; $('welcome').hidden = false;
+      $('formTitle').textContent = COPY[m].title; $('formSub').textContent = COPY[m].sub; $('formGo').textContent = COPY[m].go;
+      $('formFields').innerHTML = GARUDA.formHtml(m);
+      const first = $('formFields').querySelector('input'); if (first) first.focus();
+    }
+    function go() {
+      GARUDA.setNames(GARUDA.readForm($('formFields')));
+      GARUDA.pass(mode);
+      location.href = COPY[mode].page;
+    }
+    document.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => openForm(b.dataset.mode)));
+    $('formBack').addEventListener('click', showStep1);
+    $('formGo').addEventListener('click', go);
+    $('formFields').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    $('openWelcome').addEventListener('click', showStep1);
+
+    // Light and night mode, remembered on this computer.
+    function setTheme(t) {
+      document.documentElement.dataset.theme = t;
+      $('theme').textContent = t === 'dark' ? '\u2600 Day mode' : '\uD83C\uDF19 Night mode';
+      try { localStorage.setItem('garuda-theme', t); } catch (e) { /* ignore */ }
+    }
+    $('theme').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+    let th = null; try { th = localStorage.getItem('garuda-theme'); } catch (e) { /* ignore */ }
+    setTheme(th || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+
+    // Sent back here because a page needs its details? Jump straight to the right questions.
+    const want = new URLSearchParams(location.search).get('go');
+    if (want && COPY[want]) openForm(want);
+  </script>
+</body>
+</html>
